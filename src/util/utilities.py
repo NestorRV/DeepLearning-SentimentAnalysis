@@ -204,7 +204,7 @@ def preprocess_tweets(tweets):
 
     for tweet in lowercase_tweets:
         # remove user names, urls and characters like _, +
-        tweet = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+        tweet = ' '.join(re.sub("(@[A-Za-z0-9]+)|(\w+:\/\/\S+)", " ", tweet).split())
         tweet_words = word_tokenize(tweet)
         # number to words
         tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in tweet_words]
