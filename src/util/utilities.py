@@ -193,11 +193,6 @@ def plot_graphic(history, name):
     pyplot.legend(['Train', 'Validation'], loc='upper right')
     pyplot.savefig(name + '-' + str(int(time.time())) + '.png')
 
-
-
-
-
-
 def preprocess_tweets(tweets):
     # nltk.download('stopwords')
     # nltk.download('punkt')
@@ -214,8 +209,9 @@ def preprocess_tweets(tweets):
         # number to words
         tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in tweet_words]
         # remove stopwords
-        tweet_words = [word for word in tweet_words if word not in stop_words]
+        tweet_words = ' '.join(word for word in tweet_words if word not in stop_words)
 
         preprocessed_tweets.append(tweet_words)
+
 
     return preprocessed_tweets
