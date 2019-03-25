@@ -8,6 +8,11 @@ from matplotlib import pyplot
 from nltk.tokenize.casual import TweetTokenizer
 from numpy import array as np_array
 from sklearn import metrics
+from nltk.corpus import stopwords
+from nltk.downloader import download
+from nltk import word_tokenize
+from unidecode import unidecode
+from num2words import num2words
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
@@ -187,3 +192,26 @@ def plot_graphic(history, name):
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
     pyplot.savefig(name + '-' + str(int(time.time())) + '.png')
+
+def preprocess_tweets(tweets):
+    # nltk.download('stopwords')
+    # nltk.download('punkt')
+    stop_words = stopwords.words('spanish')
+
+    preprocessed_tweets = []
+    # lower case and remove accent marks
+    lowercase_tweets = [unidecode(tweet.lower()) for tweet in tweets]
+
+    for tweet in lowercase_tweets:
+        # remove user names, urls and characters like _, +
+        tweet = ' '.join(re.sub("(@[A-Za-z0-9]+)|(\w+:\/\/\S+)", " ", tweet).split())
+        tweet_words = word_tokenize(tweet)
+        # number to words
+        tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in tweet_words]
+        # remove stopwords
+        tweet_words = ' '.join(word for word in tweet_words if word not in stop_words)
+
+        preprocessed_tweets.append(tweet_words)
+
+
+    return preprocessed_tweets
