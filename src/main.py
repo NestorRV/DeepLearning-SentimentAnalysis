@@ -80,12 +80,12 @@ def main():
 
     """ sigmoid_pretrain_embedings_rnn"""
     ys_sigmoid_pretrain_embeddings_rnn = sigmoid_pretrain_embedings_rnn(
-        '../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
+        'data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
         validation_xs, validation_ys)
 
     """ epochs100_pretrain_embeddings_rnn"""
     ys_epochs100_pretrain_embeddings_rnn = pretrain_embedings_rnn(
-        '../data/embeddings/fasttext_spanish_twitter_100d.vec',
+        'data/embeddings/fasttext_spanish_twitter_100d.vec',
         train_xs, train_ys,
         validation_xs, validation_ys, epochs=100)
 
