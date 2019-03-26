@@ -10,9 +10,9 @@ from src.util.utilities import *
 
 
 def main():
-    train_raw_tweets = get_raw_tweets('../data/input/train.xml')
-    test_raw_tweets = get_raw_tweets('../data/input/test.xml')
-    validation_raw_tweets = get_raw_tweets('../data/input/validation.xml')
+    train_raw_tweets = get_raw_tweets('data/input/train.xml')
+    test_raw_tweets = get_raw_tweets('data/input/test.xml')
+    validation_raw_tweets = get_raw_tweets('data/input/validation.xml')
 
     """
     ************************************* 
@@ -52,6 +52,16 @@ def main():
 
     """
     ************************************* 
+    Preprocesamiento de datos
+    *************************************
+    """
+
+    preprocessed_train_xs = preprocess_tweets(train_xs)
+    preprocessed_validation_xs = preprocess_tweets(validation_xs)
+    preprocessed_test_xs = preprocess_tweets(test_xs)
+
+    """
+    ************************************* 
     Modelos 
     *************************************
     """
@@ -63,7 +73,8 @@ def main():
     ys_calculated_embeddings_rnn = calculated_embedings_rnn(train_xs, train_ys, validation_xs, validation_ys)
 
     """ pretrain_embedings_rnn"""
-    ys_pretrain_embeddings_rnn = pretrain_embedings_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs,
+    ys_pretrain_embeddings_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
+                                                        train_xs,
                                                         train_ys,
                                                         validation_xs, validation_ys)
 
@@ -73,26 +84,42 @@ def main():
         validation_xs, validation_ys)
 
     """ epochs100_pretrain_embeddings_rnn"""
-    ys_epochs100_pretrain_embeddings_rnn = pretrain_embedings_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec',
-                                                                  train_xs, train_ys,
-                                                                  validation_xs, validation_ys, epochs=100)
+    ys_epochs100_pretrain_embeddings_rnn = pretrain_embedings_rnn(
+        '../data/embeddings/fasttext_spanish_twitter_100d.vec',
+        train_xs, train_ys,
+        validation_xs, validation_ys, epochs=100)
 
     """ stacked_lstm_rnn"""
-    ys_stacked_lstm_rnn = stacked_lstm_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
+    ys_stacked_lstm_rnn = stacked_lstm_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
                                            validation_xs, validation_ys)
 
     """ adadelta_rnn"""
-    ys_adadelta_rnn = adadelta_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
+    ys_adadelta_rnn = adadelta_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
                                    validation_xs, validation_ys)
 
     """ adam_lr_0005_rnn"""
-    ys_adam_lr_0005_rnn = pretrain_embedings_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs,
+    ys_adam_lr_0005_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs,
                                                  train_ys,
                                                  validation_xs, validation_ys, learning_rate=0.0005)
 
     """ pretrain_embedings_LSTM_CONV"""
-    ys_pretrain_embedings_LSTM_CONV = pretrain_embedings_LSTM_CONV('../data/embeddings/fasttext_spanish_twitter_100d.vec',
-                                                                   train_xs, train_ys, validation_xs, validation_ys)
+    ys_pretrain_embedings_LSTM_CONV = pretrain_embedings_LSTM_CONV(
+        'data/embeddings/fasttext_spanish_twitter_100d.vec',
+        train_xs, train_ys, validation_xs, validation_ys)
+
+    """ preprocess_tfidf_rnn"""
+    ys_preprocess_tfidf_rnn = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
+
+    """ preprocess_calculated_embedings_rnn"""
+    ys_preprocess_calculated_embeddings_rnn = calculated_embedings_rnn(preprocessed_train_xs, train_ys,
+                                                                       preprocessed_validation_xs, validation_ys)
+
+    """ preprocess_pretrain_embedings_rnn"""
+    ys_preprocess_pretrain_embeddings_rnn = pretrain_embedings_rnn(
+        'data/embeddings/fasttext_spanish_twitter_100d.vec',
+        preprocessed_train_xs,
+        train_ys,
+        preprocessed_validation_xs, validation_ys)
 
     """
     ************************************* 
@@ -142,6 +169,20 @@ def main():
                                                     'pretrain_embedings_LSTM_CONV_lr_0_0005',
                                                     classes_index=list(CLASSES_TO_NUM_DIC.values()))
 
+    # Vemos que con el preprocesado se nota muchísima mejoría respecto a calculated_embeddings_rnn, ninguna mejoría con rnn_tjdif
+    # y algo de mejor en pretrain_embedings
+    """ preprocess_rnn-tfidf """
+    preprocess_tfidf_rnn_results = evaluate(validation_ys, ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf',
+                                 classes_index=list(CLASSES_TO_NUM_DIC.values()))
+
+    """ preprocess_calculated_embedings_rnn """
+    preprocess_calculated_embedings_rnn_results = evaluate(validation_ys, ys_preprocess_calculated_embeddings_rnn, 'preprocess_calculated_embedings_rnn',
+                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
+
+    """ pretrain-embedings-rnn """
+    preprocess_pretrain_embedings_rnn_results = evaluate(validation_ys, ys_preprocess_pretrain_embeddings_rnn, 'preprocess_pretrain-embedings-rnn',
+                                              classes_index=list(CLASSES_TO_NUM_DIC.values()))
+
     # Porque hemos cogido tanh en vez de sigmoid**: LSTMs manage an internal state vector whose values should be able to
     # increase or decrease when we add the output of some function. Sigmoid output is always non-negative; values in the
     # state would only increase. The output from tanh can be positive or negative, allowing for increases and decreases in the state.
@@ -154,7 +195,10 @@ def main():
                                stacked_lstm_rnn_results,
                                adadelta_rnn_results,
                                adam_lr_0005_results,
-                               pretrain_embedings_LSTM_CONV_results])
+                               pretrain_embedings_LSTM_CONV_results,
+                               preprocess_tfidf_rnn_results,
+                               preprocess_calculated_embedings_rnn_results,
+                               preprocess_pretrain_embedings_rnn_results])
 
     final_results.sort_values('micro_f1', ascending=False)
 
