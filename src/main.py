@@ -73,8 +73,7 @@ def main():
     ys_calculated_embeddings_rnn = calculated_embedings_rnn(train_xs, train_ys, validation_xs, validation_ys)
 
     """ pretrain_embedings_rnn"""
-    ys_pretrain_embeddings_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
-                                                        train_xs,
+    ys_pretrain_embeddings_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs,
                                                         train_ys,
                                                         validation_xs, validation_ys)
 
@@ -84,10 +83,9 @@ def main():
         validation_xs, validation_ys)
 
     """ epochs100_pretrain_embeddings_rnn"""
-    ys_epochs100_pretrain_embeddings_rnn = pretrain_embedings_rnn(
-        'data/embeddings/fasttext_spanish_twitter_100d.vec',
-        train_xs, train_ys,
-        validation_xs, validation_ys, epochs=100)
+    ys_epochs100_pretrain_embeddings_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
+                                                                  train_xs, train_ys,
+                                                                  validation_xs, validation_ys, epochs=100)
 
     """ stacked_lstm_rnn"""
     ys_stacked_lstm_rnn = stacked_lstm_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys,
@@ -120,6 +118,7 @@ def main():
         preprocessed_train_xs,
         train_ys,
         preprocessed_validation_xs, validation_ys)
+
 
     """
     ************************************* 
