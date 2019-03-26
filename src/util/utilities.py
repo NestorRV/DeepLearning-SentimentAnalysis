@@ -194,6 +194,25 @@ def plot_graphic(history, name):
     pyplot.savefig(name + '-' + str(int(time.time())) + '.png')
 
 
+def remove_emojis(tweet):
+    # :), : ), :-), (:, ( :, (-:, :'), :D, : D, :-D, xD, x-D, XD, X-D, xd
+    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' EMO_POS ', tweet)
+    # jajaja, lol
+    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' EMO_POS ', tweet)
+    # hahaha
+    tweet = re.sub(r'(a*ha+h[ha])', ' EMO_POS ', tweet)
+    # <3, :*
+    tweet = re.sub(r'(<3|:\*)', ' EMO_POS ', tweet)
+    # ;-), ;), ;-D, ;D, (;,  (-;, ^^
+    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' EMO_POS ', tweet)
+    # :-(, : (, :(, ):, )-:
+    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' EMO_NEG ', tweet)
+    # :,(, :'(, :"(
+    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' EMO_NEG ', tweet)
+    return tweet
+
+
 def preprocess_tweets(tweets):
     # nltk.download('stopwords')
     # nltk.download('punkt')
@@ -204,8 +223,30 @@ def preprocess_tweets(tweets):
     lowercase_tweets = [unidecode(tweet.lower()) for tweet in tweets]
 
     for tweet in lowercase_tweets:
-        # remove user names, urls and characters like _, +
-        tweet = ' '.join(re.sub("(@[A-Za-z0-9]+)|(\w+:\/\/\S+)", " ", tweet).split())
+        # remove punctuation
+        tweet = tweet.strip('\'"?!,.():;')
+        # convert more than 2 letter repetitions to 2 letter
+        tweet = re.sub(r'(.)\1+', r'\1\1', tweet)
+        # Remove - & '
+        tweet = re.sub(r'(-|\')', '', tweet)
+
+        # Replaces URLs with the word URL
+        tweet = re.sub(r'((www\.[\S]+)|(https?://[\S]+))', ' URL ', tweet)
+        # Replace @handle with the word USER_MENTION
+        tweet = re.sub(r'@[\S]+', 'USER_MENTION', tweet)
+        # Replaces #hashtag with hashtag
+        tweet = re.sub(r'#(\S+)', r' \1 ', tweet)
+        # Remove RT (retweet)
+        tweet = re.sub(r'\brt\b', '', tweet)
+        # Replace 2+ dots with space
+        tweet = re.sub(r'\.{2,}', ' ', tweet)
+        # Strip space, " and ' from tweet
+        tweet = tweet.strip(' "\'')
+        # Replace emojis with either EMO_POS or EMO_NEG
+        tweet = remove_emojis(tweet)
+        # Replace multiple spaces with a single space
+        tweet = re.sub(r'\s+', ' ', tweet)
+
         tweet_words = word_tokenize(tweet)
         # number to words
         tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in tweet_words]
