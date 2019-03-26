@@ -218,31 +218,46 @@ def main():
                 NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
 
     # pretrain-embedings-rnn -> Kaggle: 0.50439
-    test_ys_pretrain_embeddings_rnn = pretrain_embedings_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec',
+    test_ys_pretrain_embeddings_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
                                                              train_xs, train_ys, test_xs, verbose=0)
     kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain-embedings-rnn',
                 NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
 
     # sigmoid_pretrain_embedings_rnn_results -> Kaggle: 0.50439
     test_ys_sigmoid_pretrain_embeddings_rnn = pretrain_embedings_rnn(
-        '../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
+        'data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
     kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain-embedings-rnn',
                 NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
 
     # stacked_lstm_rnn -> Kaggle: 0.52724
-    test_ys_stacked_lstm_rnn = stacked_lstm_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec',
+    test_ys_stacked_lstm_rnn = stacked_lstm_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
                                                 train_xs, train_ys, test_xs, verbose=0)
     kaggle_file(test_ids, test_ys_stacked_lstm_rnn, 'stacked_lstm_rnn', NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
 
     # adam_lr_0005 -> Kaggle: 0.52899
-    test_ys_adam_lr_0005_rnn = pretrain_embedings_rnn('../data/embeddings/fasttext_spanish_twitter_100d.vec',
+    test_ys_adam_lr_0005_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
                                                       train_xs, train_ys, test_xs, learning_rate=0.0005, verbose=0)
     kaggle_file(test_ids, test_ys_adam_lr_0005_rnn, 'adam_lr_0005', NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
 
     # pretrain_embedings_LSTM_CONV -> Kaggle: 0.55008
     test_ys_pretrain_embedings_LSTM_CONV = pretrain_embedings_LSTM_CONV(
-        '../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
+        'data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
     kaggle_file(test_ids, test_ys_pretrain_embedings_LSTM_CONV, 'pretrain_embedings_LSTM_CONV',
+                NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
+
+    # preprocess_rnn-tfidf
+    test_ys_preprocess_tfidf_rnn = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0)
+    kaggle_file(test_ids, test_ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf', NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
+
+    # preprocess_calculated_embedings_rnn
+    test_ys_preprocess_calculated_embeddings_rnn = calculated_embedings_rnn(preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0)
+    kaggle_file(test_ids, test_ys_preprocess_calculated_embeddings_rnn, 'preprocess_calculated_embedings_rnn',
+                NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
+
+    # preprocess_pretrain-embedings-rnn
+    test_ys_preprocess_pretrain_embeddings_rnn = pretrain_embedings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
+                                                             preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0)
+    kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_rnn, 'preprocess_pretrain-embedings-rnn',
                 NUM_TO_CLASSES_DIC=NUM_TO_CLASSES_DIC)
 
 
