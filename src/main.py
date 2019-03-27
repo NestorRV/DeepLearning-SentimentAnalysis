@@ -59,6 +59,9 @@ def main():
         "adadelta_rnn": False,
         "adam_lr_0005_rnn": False,
         "pretrain_embeddings_LSTM_CONV": False,
+        "preprocess_tfidf_rnn": False,
+        "preprocess_calculated_embeddings_rnn": False,
+        "preprocess_pretrain_embeddings_rnn": False
     }
 
     should_submit = {
@@ -70,7 +73,7 @@ def main():
         "stacked_lstm_rnn": False,
         "adadelta_rnn": False,
         "adam_lr_0005_rnn": False,
-        "pretrain_embeddings_LSTM_CONV": False,
+        "pretrain_embeddings_LSTM_CONV": False
     }
 
     final_results = pd.DataFrame
@@ -96,7 +99,23 @@ def main():
      A set of embeddings "represents" the vocabulary associated with the language with which we are working.
      If we try to build such vocabulary only with the words present in the training set,
      This will be very poor and may not fit the reality.
-     """
+    """
+
+    """
+    ************************************* 
+    Preprocesamiento de datos
+    *************************************
+    """
+
+    preprocessed_train_xs = preprocess_tweets(train_xs)
+    preprocessed_validation_xs = preprocess_tweets(validation_xs)
+    preprocessed_test_xs = preprocess_tweets(test_xs)
+
+    """
+    ************************************* 
+    Modelos 
+    *************************************
+    """
 
     if should_compute["ys_pretrain_embeddings_rnn"]:
         ys_pretrain_embeddings_rnn = pretrain_embeddings_rnn(train_xs, train_ys, validation_xs, validation_ys,
@@ -130,14 +149,12 @@ def main():
 
         stacked_lstm_rnn_results = evaluate(validation_ys, ys_stacked_lstm_rnn, 'stacked_lstm_rnn',
                                             classes_index=list(CLASSES_TO_NUM_DIC.values()))
-
         final_results = pd.concat([stacked_lstm_rnn_results])
 
     if should_compute["adadelta_rnn"]:
         ys_adadelta_rnn = adadelta_rnn(embeddings_file_path, train_xs, train_ys, validation_xs, validation_ys)
         adadelta_rnn_results = evaluate(validation_ys, ys_adadelta_rnn, 'adadelta_rnn',
                                         classes_index=list(CLASSES_TO_NUM_DIC.values()))
-
         final_results = pd.concat([adadelta_rnn_results])
 
     if should_compute["adam_lr_0005_rnn"]:
@@ -151,12 +168,27 @@ def main():
     if should_compute["pretrain_embeddings_LSTM_CONV"]:
         ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs, train_ys,
                                                                          validation_xs, validation_ys)
-
         pretrain_embeddings_LSTM_CONV_results = evaluate(validation_ys, ys_pretrain_embeddings_LSTM_CONV,
-                                                         'pretrain_embeddings_LSTM_CONV_lr_0_0005',
+                                                         'pretrain_embeddings_LSTM_CONV',
                                                          classes_index=list(CLASSES_TO_NUM_DIC.values()))
-
         final_results = pd.concat([pretrain_embeddings_LSTM_CONV_results])
+
+    if should_compute["preprocess_tfidf_rnn"]:
+        ys_preprocess_tfidf_rnn = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
+        preprocess_tfidf_rnn_results = evaluate(validation_ys, ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf', classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        final_results = pd.concat([preprocess_tfidf_rnn_results])
+    
+    if should_compute["preprocess_calculated_embeddings_rnn"]:
+        ys_preprocess_calculated_embeddings_rnn = calculated_embeddings_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
+        preprocess_calculated_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_calculated_embeddings_rnn, 'preprocess_calculated_embeddings_rnn', classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        final_results = pd.concat([preprocess_calculated_embeddings_rnn_results])
+
+    if should_compute["preprocess_pretrain_embeddings_rnn"]:
+        ys_preprocess_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
+        preprocess_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_pretrain_embeddings_rnn, 'preprocess_pretrain-embeddings-rnn', classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
+
+        
 
     """
     Why have we taken tanh instead of sigmoid? LSTMs manage an internal state vector whose values should be 
@@ -191,18 +223,17 @@ def main():
                     NUM_TO_CLASSES_DIC)
 
     if should_submit["stacked_lstm_rnn"]:
-        test_ys_stacked_lstm_rnn = stacked_lstm_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
-                                                    train_xs, train_ys, test_xs, verbose=0)
+        test_ys_stacked_lstm_rnn = stacked_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_stacked_lstm_rnn, 'stacked_lstm_rnn', NUM_TO_CLASSES_DIC)
 
     if should_submit["adam_lr_0005_rnn"]:
-        test_ys_adam_lr_0005_rnn = pretrain_embeddings_rnn('data/embeddings/fasttext_spanish_twitter_100d.vec',
+        test_ys_adam_lr_0005_rnn = pretrain_embeddings_rnn(embeddings_file_path,
                                                            train_xs, train_ys, test_xs, learning_rate=0.0005, verbose=0)
         kaggle_file(test_ids, test_ys_adam_lr_0005_rnn, 'adam_lr_0005', NUM_TO_CLASSES_DIC)
 
     if should_submit["pretrain_embeddings_LSTM_CONV"]:
         test_ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(
-            'data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
+            embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
 
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV',
                     NUM_TO_CLASSES_DIC)
