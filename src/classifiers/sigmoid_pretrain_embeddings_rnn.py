@@ -1,5 +1,4 @@
 import numpy as np
-
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
@@ -54,7 +53,7 @@ def sigmoid_pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs
                      loss="sparse_categorical_crossentropy",
                      metrics=["accuracy"])
 
-    if (verbose == 1):
+    if verbose == 1:
         print(nn_model.summary())
 
     train_features_pad = sequence.pad_sequences(corpus_train_index, maxlen=max_len_input,
@@ -66,7 +65,7 @@ def sigmoid_pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs
     test_features_pad = sequence.pad_sequences(corpus_test_index, maxlen=max_len_input,
                                                padding="post", truncating="post",
                                                dtype=type(corpus_test_index[0][0]))
-    if (test_ys is None):
+    if test_ys is None:
         nn_model.fit(train_features_pad, np_labels_train, batch_size=32, epochs=25, verbose=verbose)
     else:
         history = nn_model.fit(train_features_pad, np_labels_train,

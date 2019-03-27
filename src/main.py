@@ -6,7 +6,6 @@ from src.classifiers.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_emb
 from src.classifiers.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.tfidf_rnn import tfidf_rnn
 from src.util.utilities import *
-import pandas as pd
 
 
 def main():

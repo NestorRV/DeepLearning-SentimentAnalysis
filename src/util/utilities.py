@@ -1,17 +1,17 @@
-import pandas as pd
 import re
 import time
 import xml.etree.ElementTree
-
 from collections import OrderedDict
+
+import pandas as pd
 from matplotlib import pyplot
+from nltk import word_tokenize
+from nltk.corpus import stopwords
 from nltk.tokenize.casual import TweetTokenizer
+from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
-from nltk.corpus import stopwords
-from nltk import word_tokenize, download
 from unidecode import unidecode
-from num2words import num2words
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
@@ -99,7 +99,8 @@ def fit_transform_vocabulary_pretrain_embeddings(corpus, pre_embeddings_index):
             else:  # if token does not exist in pre_embeddings_index, the,
                 index = 1  # assign 1 as index
 
-            doc_indexes.append(index)  # add the corresponding index for token in doc_indexes. or better said the tweet indexes.
+            doc_indexes.append(
+                index)  # add the corresponding index for token in doc_indexes. or better said the tweet indexes.
 
             if token not in vocabulary:  # if token, does not exist in vocabulary, then ..
                 vocabulary[token] = index  # add the corresponding index for token into vocabulary.
@@ -224,7 +225,6 @@ def plot_graphic(history, name):
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
     pyplot.savefig("../plots" + name + '-' + str(int(time.time())) + '.png')
-
 
 
 def remove_emojis(tweet):

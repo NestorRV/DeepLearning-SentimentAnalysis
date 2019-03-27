@@ -1,5 +1,4 @@
 import numpy as np
-
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.recurrent import LSTM
@@ -44,7 +43,7 @@ def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=
                      loss="sparse_categorical_crossentropy",
                      metrics=["accuracy"])
 
-    if (verbose == 1):
+    if verbose == 1:
         print(nn_model.summary())
 
     train_features_tfidf_pad = sequence.pad_sequences(train_features_tfidf, maxlen=max_len_input,
@@ -59,7 +58,7 @@ def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=
                                                      dtype=test_sparse_matrix_features_tfidf.dtype)
     test_features_tfidf_pad_expanded = np.expand_dims(test_features_tfidf_pad, axis=-1)
 
-    if (test_ys is None):
+    if test_ys is None:
         nn_model.fit(train_features_tfidf_pad, np_labels_train, batch_size=32, epochs=10, verbose=verbose)
     else:
         history = nn_model.fit(train_features_tfidf_pad, np_labels_train,
