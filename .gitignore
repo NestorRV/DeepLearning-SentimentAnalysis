@@ -1,3 +1,4 @@
 data/embeddings/
-data/results/
+submissions
 .idea/
+venv

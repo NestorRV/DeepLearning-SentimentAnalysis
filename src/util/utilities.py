@@ -9,7 +9,6 @@ from nltk.tokenize.casual import TweetTokenizer
 from numpy import array as np_array
 from sklearn import metrics
 from nltk.corpus import stopwords
-from nltk.downloader import download
 from nltk import word_tokenize
 from unidecode import unidecode
 from num2words import num2words
@@ -22,10 +21,10 @@ RE_TOKEN_USER = re.compile(
 
 def tokenize(text):
     """Tokenize an input text
-    
+
     Args:
         text: A String with the text to tokenize
-    
+
     Returns:
         A list of Strings (tokens)
     """
@@ -35,13 +34,13 @@ def tokenize(text):
 
 def fit_transform_vocabulary(corpus):
     """Creates the vocabulary of the corpus
-    
+
     Args:
         corpus: A list of str (documents)
-        
+
     Returns:
         A tuple whose first element is a dictionary word-index and the second
-        element is a list of list in which each position is the index of the 
+        element is a list of list in which each position is the index of the
         token in the vocabulary
     """
 
@@ -62,47 +61,57 @@ def fit_transform_vocabulary(corpus):
 
         corpus_indexes_append(doc_indexes)
 
-    return (vocabulary, corpus_indexes)
+    return vocabulary, corpus_indexes
 
 
 def fit_transform_vocabulary_pretrain_embeddings(corpus, pre_embeddings_index):
-    """Creates the vocabulary of the corpus.
+    """
+    Creates the vocabulary of the corpus.
         Index 0: padding
         Index 1: OOV.
-    
-    Args:
-        corpus: A list os str (documents)
-        
+
+    :param corpus: represents the documents, in our case the train dataset.
+    :param pre_embeddings_index:
+
     Returns:
         A tuple whose first element is a dictionary word-index and the second
-        element is a list of list in which each position is the index of the 
+        element is a list of list in which each position is the index of the
         token in the vocabulary
     """
 
-    vocabulary = {}
-    corpus_indexes = []
-    corpus_indexes_append = corpus_indexes.append
-    index = 0
-    own_lowercase = str.lower
-    for doc in corpus:
-        doc_indexes = []
-        tokens = tokenize(own_lowercase(doc))
-        for token in tokens:
-            if RE_TOKEN_USER.fullmatch(token):
-                token = "@user"
-            if token in pre_embeddings_index:
-                index = pre_embeddings_index[token]
-                doc_indexes.append(index)
-                if token not in vocabulary:
-                    vocabulary[token] = index
-            else:
-                index = 1
-                doc_indexes.append(index)
-                if token not in vocabulary:
-                    vocabulary[token] = index
-        corpus_indexes_append(doc_indexes)
+    vocabulary = {}  # vocabularies dict. associates foe each token in vocabulary, an index.
+    corpus_indexes = []  # corpus indexes list
 
-    return (vocabulary, corpus_indexes)
+    corpus_indexes_append = corpus_indexes.append
+    own_lowercase = str.lower  # lower case a string
+
+    for doc in corpus:  # for each document in corpus. a document is a tweet in our case.
+
+        doc_indexes = []  # the
+        tokens = tokenize(own_lowercase(doc))  # tokens, is a list of tokenizing doc, also in lowercase.
+        # so each word in doc will have a token corresponding to it.
+
+        for token in tokens:  # for each token ..
+
+            if RE_TOKEN_USER.fullmatch(token):  # if token fully match RE_TOKEN_USER, then replace token with " @user "
+                token = "@user"
+
+            if token in pre_embeddings_index:  # if token in exists in pre_embeddings_index.
+
+                index = pre_embeddings_index[token]  # then save its index from pre_embeddings_index
+
+            else:  # if token does not exist in pre_embeddings_index, the,
+                index = 1  # assign 1 as index
+
+            doc_indexes.append(index)  # add the corresponding index for token in doc_indexes. or better said
+            # the tweet indexes.
+
+            if token not in vocabulary:  # if token, does not exist in vocabulary, then ..
+                vocabulary[token] = index  # add the corresponding index for token into vocabulary.
+
+        corpus_indexes_append(doc_indexes)  # add the doc_indexes into corpus_indexes
+
+    return vocabulary, corpus_indexes
 
 
 def read_embeddings(path, offset):
@@ -120,10 +129,21 @@ def read_embeddings(path, offset):
             word_indexes[word] = len(word_embeddings)
             word_embeddings.append(emb_values)
 
-    return (word_embeddings, word_indexes)
+    return word_embeddings, word_indexes
 
 
 def evaluate(real_ys, predicted_ys, model_name, classes_index):
+    """
+    evaluate, is a function used to obtain the evaluation metrics for model_name with real_ys as the real labels and
+    predicted_ys as the predicted labels.
+
+    :param real_ys: the real labels
+    :param predicted_ys: the predicted labels
+    :param model_name: the model to evaluate
+    :param classes_index: the corresponding index for each class label
+    :return:
+    """
+    print(set(real_ys) - set(predicted_ys))
     accuracy = metrics.accuracy_score(real_ys, predicted_ys)
     macro_precision = metrics.precision_score(real_ys, predicted_ys,
                                               labels=classes_index, average="macro")
@@ -152,14 +172,32 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     return df
 
 
-def kaggle_file(ids, ys, model, NUM_TO_CLASSES_DIC):
-    real_classes = [NUM_TO_CLASSES_DIC[y] for y in ys]
+def kaggle_file(ids, ys, model, num_to_classes_dic):
+    """
+    src.util.utilities.kaggle_file, a function used to prepare the submission file.
+
+    :param ids: instances ID's
+    :param ys: the predicted labels
+    :param model: the model name
+    :param num_to_classes_dic: a dictionary of index: "real class label" pairs.
+    :return:
+    """
+    real_classes = [num_to_classes_dic[y] for y in ys]
     df = pd.DataFrame(OrderedDict({'Id': ids, 'Expected': real_classes}))
-    file_name = './data/results/' + model + '-' + str(int(time.time())) + '.csv'
+    file_name = '../submissions/' + model + '-' + str(int(time.time())) + '.csv'
     df.to_csv(file_name, index=False)
 
 
 def get_raw_tweets(dataset):
+    """
+    get_get_raw_tweets, a function used to read the tweets from the original source dataset. In this case it comes in
+    XML format.
+
+    :param dataset: the source dataset
+
+    :return: a list of raw tweets
+    """
+
     tree = xml.etree.ElementTree.parse(dataset)
     root = tree.getroot()
     return root.findall('tweet')
@@ -191,7 +229,8 @@ def plot_graphic(history, name):
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig(name + '-' + str(int(time.time())) + '.png')
+    pyplot.savefig("../../plots"+name + '-' + str(int(time.time())) + '.png')
+
 
 def preprocess_tweets(tweets):
     # nltk.download('stopwords')
@@ -212,6 +251,5 @@ def preprocess_tweets(tweets):
         tweet_words = ' '.join(word for word in tweet_words if word not in stop_words)
 
         preprocessed_tweets.append(tweet_words)
-
 
     return preprocessed_tweets
