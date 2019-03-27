@@ -9,8 +9,8 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def stacked_lstm_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1, num_classes = 4):
-    """Classification with RNN and embedings (no pre-trained)
+def stacked_lstm_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1, num_classes=4):
+    """Classification with RNN and embeddings (no pre-trained)
     """
 
     np.random.seed(seed=1)

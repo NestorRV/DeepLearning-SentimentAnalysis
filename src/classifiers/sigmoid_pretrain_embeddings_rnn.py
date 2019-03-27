@@ -9,11 +9,13 @@ from keras.preprocessing import sequence
 
 from src.util.utilities import *
 
+
 # Usamos la sigmoide como función de activación de las capas ocultas, ya que es bastante usada y, además,
 # no produce valores negativos como ocurre con la tangent hiperbólica.
 
-def sigmoid_pretrain_embedings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes = 4):
-    """Classification with RNN and embedings (no pre-trained)
+def sigmoid_pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1,
+                                    num_classes=4):
+    """Classification with RNN and embeddings (no pre-trained)
     """
 
     np.random.seed(seed=1)
@@ -71,7 +73,7 @@ def sigmoid_pretrain_embedings_rnn(embeddings_path, train_xs, train_ys, test_xs,
                                validation_data=(test_features_pad, test_ys),
                                batch_size=32, epochs=25, verbose=verbose)
 
-        plot_graphic(history, 'sigmoid_pretrain_embedings_rnn')
+        plot_graphic(history, 'sigmoid_pretrain_embeddings_rnn')
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
     return y_labels

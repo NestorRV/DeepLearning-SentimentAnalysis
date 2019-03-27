@@ -48,9 +48,6 @@ def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, 
     nn_model.add(Dropout(0.5))
     nn_model.add(AveragePooling1D())
 
-    # resolved the error ValueError: Negative dimension size caused by subtracting 2 from 0 for 'avg_pooling ... @
-    # https://stackoverflow.com/questions/49079115/valueerror-negative-dimension-size-caused-by-subtracting-2-from-1
-    # -for-max-pool
     nn_model.add(Dense(128, activation='relu'))
     nn_model.add(Dropout(0.5))
     nn_model.add(AveragePooling1D())

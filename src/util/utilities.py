@@ -9,14 +9,14 @@ from nltk.tokenize.casual import TweetTokenizer
 from numpy import array as np_array
 from sklearn import metrics
 from nltk.corpus import stopwords
-from nltk import word_tokenize
+from nltk import word_tokenize, download
 from unidecode import unidecode
 from num2words import num2words
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
-    r"(?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
+    r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
 
 
 def tokenize(text):
@@ -81,30 +81,25 @@ def fit_transform_vocabulary_pretrain_embeddings(corpus, pre_embeddings_index):
 
     vocabulary = {}  # vocabularies dict. associates foe each token in vocabulary, an index.
     corpus_indexes = []  # corpus indexes list
-
     corpus_indexes_append = corpus_indexes.append
+    index = 0
     own_lowercase = str.lower  # lower case a string
 
     for doc in corpus:  # for each document in corpus. a document is a tweet in our case.
-
         doc_indexes = []  # the
         tokens = tokenize(own_lowercase(doc))  # tokens, is a list of tokenizing doc, also in lowercase.
         # so each word in doc will have a token corresponding to it.
 
         for token in tokens:  # for each token ..
-
             if RE_TOKEN_USER.fullmatch(token):  # if token fully match RE_TOKEN_USER, then replace token with " @user "
                 token = "@user"
 
             if token in pre_embeddings_index:  # if token in exists in pre_embeddings_index.
-
                 index = pre_embeddings_index[token]  # then save its index from pre_embeddings_index
-
             else:  # if token does not exist in pre_embeddings_index, the,
                 index = 1  # assign 1 as index
 
-            doc_indexes.append(index)  # add the corresponding index for token in doc_indexes. or better said
-            # the tweet indexes.
+            doc_indexes.append(index)  # add the corresponding index for token in doc_indexes. or better said the tweet indexes.
 
             if token not in vocabulary:  # if token, does not exist in vocabulary, then ..
                 vocabulary[token] = index  # add the corresponding index for token into vocabulary.
@@ -143,7 +138,6 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     :param classes_index: the corresponding index for each class label
     :return:
     """
-    print(set(real_ys) - set(predicted_ys))
     accuracy = metrics.accuracy_score(real_ys, predicted_ys)
     macro_precision = metrics.precision_score(real_ys, predicted_ys,
                                               labels=classes_index, average="macro")
@@ -229,12 +223,12 @@ def plot_graphic(history, name):
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig("../../plots"+name + '-' + str(int(time.time())) + '.png')
+    pyplot.savefig("../../plots" + name + '-' + str(int(time.time())) + '.png')
 
 
 def preprocess_tweets(tweets):
-    # nltk.download('stopwords')
-    # nltk.download('punkt')
+    # download('stopwords')
+    # download('punkt')
     stop_words = stopwords.words('spanish')
 
     preprocessed_tweets = []
