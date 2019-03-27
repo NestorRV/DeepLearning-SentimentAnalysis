@@ -1,5 +1,4 @@
 import numpy as np
-
 from keras.layers.core import Dense
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
