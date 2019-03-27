@@ -1,5 +1,3 @@
-import pandas as pd
-
 from src.classifiers.adadelta_rnn import adadelta_rnn
 from src.classifiers.calculated_embeddings_rnn import calculated_embeddings_rnn
 from src.classifiers.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
