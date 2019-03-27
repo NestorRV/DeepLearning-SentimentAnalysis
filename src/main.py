@@ -175,20 +175,26 @@ def main():
 
     if should_compute["preprocess_tfidf_rnn"]:
         ys_preprocess_tfidf_rnn = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
-        preprocess_tfidf_rnn_results = evaluate(validation_ys, ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf', classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        preprocess_tfidf_rnn_results = evaluate(validation_ys, ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf',
+                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
         final_results = pd.concat([preprocess_tfidf_rnn_results])
-    
+
     if should_compute["preprocess_calculated_embeddings_rnn"]:
-        ys_preprocess_calculated_embeddings_rnn = calculated_embeddings_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
-        preprocess_calculated_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_calculated_embeddings_rnn, 'preprocess_calculated_embeddings_rnn', classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        ys_preprocess_calculated_embeddings_rnn = calculated_embeddings_rnn(preprocessed_train_xs, train_ys,
+                                                                            preprocessed_validation_xs, validation_ys)
+        preprocess_calculated_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_calculated_embeddings_rnn,
+                                                                'preprocess_calculated_embeddings_rnn',
+                                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
         final_results = pd.concat([preprocess_calculated_embeddings_rnn_results])
 
     if should_compute["preprocess_pretrain_embeddings_rnn"]:
-        ys_preprocess_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
-        preprocess_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_pretrain_embeddings_rnn, 'preprocess_pretrain-embeddings-rnn', classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        ys_preprocess_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, preprocessed_train_xs,
+                                                                        train_ys, preprocessed_validation_xs,
+                                                                        validation_ys)
+        preprocess_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_pretrain_embeddings_rnn,
+                                                              'preprocess_pretrain-embeddings-rnn',
+                                                              classes_index=list(CLASSES_TO_NUM_DIC.values()))
         final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
-
-        
 
     """
     Why have we taken tanh instead of sigmoid? LSTMs manage an internal state vector whose values should be 
