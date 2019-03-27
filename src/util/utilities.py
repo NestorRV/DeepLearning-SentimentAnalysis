@@ -223,7 +223,7 @@ def plot_graphic(history, name):
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig("../../plots" + name + '-' + str(int(time.time())) + '.png')
+    pyplot.savefig("../plots" + name + '-' + str(int(time.time())) + '.png')
 
 
 def preprocess_tweets(tweets):
