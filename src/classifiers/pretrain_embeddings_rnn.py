@@ -1,4 +1,3 @@
-import numpy as np
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
@@ -15,7 +14,7 @@ def pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_y
     """Classification with RNN and embeddings (no pre-trained)
     """
 
-    np.random.seed(seed=1)
+    own_set_seed()
 
     # Offset = 2; Padding and OOV.
     word_embeddings, word_emb_indexes = read_embeddings(embeddings_path, 2)

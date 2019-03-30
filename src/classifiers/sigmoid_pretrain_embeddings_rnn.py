@@ -1,4 +1,3 @@
-import numpy as np
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
@@ -9,15 +8,12 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-# Usamos la sigmoide como función de activación de las capas ocultas, ya que es bastante usada y, además,
-# no produce valores negativos como ocurre con la tangent hiperbólica.
-
 def sigmoid_pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1,
                                     num_classes=4):
     """Classification with RNN and embeddings (no pre-trained)
     """
 
-    np.random.seed(seed=1)
+    own_set_seed()
 
     # Offset = 2; Padding and OOV.
     word_embeddings, word_emb_indexes = read_embeddings(embeddings_path, 2)

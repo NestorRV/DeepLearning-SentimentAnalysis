@@ -1,4 +1,3 @@
-import numpy as np
 from keras.layers import MaxPooling1D, Conv1D, AveragePooling1D
 from keras.layers.core import Dense, Dropout
 from keras.layers.core import Flatten
@@ -12,7 +11,7 @@ from src.util.utilities import *
 
 def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, test_ys=None,
                                   epochs=25, verbose=1, num_classes=4):
-    np.random.seed(seed=1)
+    own_set_seed()
 
     # Offset = 2; Padding and OOV.
     word_embeddings, word_emb_indexes = read_embeddings(embeddings_path, 2)
