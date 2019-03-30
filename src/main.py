@@ -1,18 +1,23 @@
-from src.classifiers.adadelta_rnn import adadelta_rnn
 from src.classifiers.calculated_embeddings_rnn import calculated_embeddings_rnn
 from src.classifiers.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
 from src.classifiers.pretrain_embeddings_rnn import pretrain_embeddings_rnn
-from src.classifiers.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_embeddings_rnn
 from src.classifiers.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.tfidf_rnn import tfidf_rnn
+
+from src.classifiers.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
+from src.classifiers.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
+from src.classifiers.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
+from src.classifiers.tfidf_rnn_cv import tfidf_rnn_cv
+from src.classifiers.adadelta_rnn_cv import adadelta_rnn_cv
+from src.classifiers.calculated_embeddings_rnn_cv import calculated_embeddings_rnn_cv
 from src.util.utilities import *
 
 
 def main():
-    embeddings_file_path = "../data/embeddings/fasttext_spanish_twitter_100d.vec"
-    train_raw_tweets = get_raw_tweets('../data/input/train.xml')
-    test_raw_tweets = get_raw_tweets('../data/input/test.xml')
-    validation_raw_tweets = get_raw_tweets('../data/input/validation.xml')
+    embeddings_file_path = "data/embeddings/fasttext_spanish_twitter_100d.vec"
+    train_raw_tweets = get_raw_tweets('data/input/train.xml')
+    test_raw_tweets = get_raw_tweets('data/input/test.xml')
+    validation_raw_tweets = get_raw_tweets('data/input/validation.xml')
 
     """ Mapping classes to numbers and vice versa """
 
@@ -51,7 +56,7 @@ def main():
         "sigmoid_pretrain_embeddings_rnn": False,
         "epochs100_pretrain_embeddings_rnn": False,
         "stacked_lstm_rnn": False,
-        "adadelta_rnn": False,
+        "adadelta_rnn": True,
         "adam_lr_0005_rnn": False,
         "pretrain_embeddings_LSTM_CONV": False,
         "preprocess_tfidf_rnn": False,
@@ -68,7 +73,10 @@ def main():
         "stacked_lstm_rnn": False,
         "adadelta_rnn": False,
         "adam_lr_0005_rnn": False,
-        "pretrain_embeddings_LSTM_CONV": False
+        "pretrain_embeddings_LSTM_CONV": False,
+        "preprocess_tfidf_rnn": False,
+        "preprocess_calculated_embeddings_rnn": False,
+        "preprocess_pretrain_embeddings_rnn": False
     }
 
     final_results = pd.DataFrame
@@ -90,19 +98,19 @@ def main():
     """
 
     if should_compute["tfidf_rnn"]:
-        ys_tfidf_rnn = tfidf_rnn(train_xs, train_ys, validation_xs, validation_ys)
-
-        tfidf_rnn_results = evaluate(validation_ys, ys_tfidf_rnn, 'rnn-tfidf',
-                                     classes_index=list(CLASSES_TO_NUM_DIC.values()))
-
+        tfidf_rnn_results = tfidf_rnn_cv(embeddings_file_path, train_xs,
+                                         train_ys,
+                                         validation_xs,
+                                         CLASSES_TO_NUM_DIC,
+                                         validation_ys)
         final_results = pd.concat([tfidf_rnn_results])
 
     if should_compute["calculated_embeddings_rnn"]:
-        ys_calculated_embeddings_rnn = calculated_embeddings_rnn(train_xs, train_ys, validation_xs, validation_ys)
-
-        calculated_embeddings_rnn_results = evaluate(validation_ys, ys_calculated_embeddings_rnn,
-                                                     'calculated_embeddings_rnn',
-                                                     classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        calculated_embeddings_rnn_results = calculated_embeddings_rnn_cv(embeddings_file_path, train_xs,
+                                                                         train_ys,
+                                                                         validation_xs,
+                                                                         CLASSES_TO_NUM_DIC,
+                                                                         validation_ys)
         final_results = pd.concat([calculated_embeddings_rnn_results])
 
     """
@@ -112,113 +120,77 @@ def main():
     """
 
     if should_compute["ys_pretrain_embeddings_rnn"]:
-        ys_pretrain_embeddings_rnn = pretrain_embeddings_rnn(train_xs, train_ys, validation_xs, validation_ys,
-                                                             embeddings_file_path)
-
-        pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_pretrain_embeddings_rnn,
-                                                   'pretrain-embeddings-rnn',
-                                                   classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([pretrain_embeddings_rnn_results])
+        ys_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv(embeddings_file_path, train_xs,
+                                                                        train_ys,
+                                                                        validation_xs,
+                                                                        CLASSES_TO_NUM_DIC,
+                                                                        validation_ys)
+        final_results = pd.concat([ys_pretrain_embeddings_rnn_results])
 
     if should_compute["sigmoid_pretrain_embeddings_rnn"]:
-        ys_sigmoid_pretrain_embeddings_rnn = sigmoid_pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
-                                                                             validation_xs, validation_ys)
-
-        sigmoid_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_sigmoid_pretrain_embeddings_rnn,
-                                                           'sigmoid-pretrain-embeddings-rnn',
-                                                           classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        sigmoid_pretrain_embeddings_rnn_results = sigmoid_pretrain_embeddings_rnn_cv(embeddings_file_path, train_xs,
+                                                                                     train_ys,
+                                                                                     validation_xs,
+                                                                                     CLASSES_TO_NUM_DIC,
+                                                                                     validation_ys)
         final_results = pd.concat([sigmoid_pretrain_embeddings_rnn_results])
 
     if should_compute["epochs100_pretrain_embeddings_rnn"]:
-        ys_epochs100_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
-                                                                       validation_xs, validation_ys, epochs=100)
-
-        epochs100_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_epochs100_pretrain_embeddings_rnn,
-                                                             'epochs100-pretrain-embeddings-rnn',
-                                                             classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        epochs100_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv(embeddings_file_path, train_xs,
+                                                                               train_ys,
+                                                                               validation_xs,
+                                                                               CLASSES_TO_NUM_DIC,
+                                                                               validation_ys, epochs=100)
         final_results = pd.concat([epochs100_pretrain_embeddings_rnn_results])
 
     if should_compute["stacked_lstm_rnn"]:
-        ys_stacked_lstm_rnn = stacked_lstm_rnn(embeddings_file_path, train_xs, train_ys, validation_xs, validation_ys)
-
-        stacked_lstm_rnn_results = evaluate(validation_ys, ys_stacked_lstm_rnn, 'stacked_lstm_rnn',
-                                            classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        stacked_lstm_rnn_results = stacked_lstm_rnn_cv(embeddings_file_path, train_xs, train_ys,
+                                                       validation_xs, CLASSES_TO_NUM_DIC, validation_ys)
         final_results = pd.concat([stacked_lstm_rnn_results])
 
     if should_compute["adadelta_rnn"]:
-        ys_adadelta_rnn = adadelta_rnn(embeddings_file_path, train_xs, train_ys, validation_xs, validation_ys)
-        adadelta_rnn_results = evaluate(validation_ys, ys_adadelta_rnn, 'adadelta_rnn',
-                                        classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        adadelta_rnn_results = adadelta_rnn_cv(embeddings_file_path, train_xs, train_ys,
+                                               validation_xs, CLASSES_TO_NUM_DIC, validation_ys)
         final_results = pd.concat([adadelta_rnn_results])
 
     if should_compute["adam_lr_0005_rnn"]:
-        ys_adam_lr_0005_rnn = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, validation_xs,
-                                                      validation_ys, learning_rate=0.0005)
-
-        adam_lr_0005_results = evaluate(validation_ys, ys_adam_lr_0005_rnn, 'adam_lr_0005',
-                                        classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([adam_lr_0005_results])
+        adam_lr_0005_rnn_results = pretrain_embeddings_rnn_cv(embeddings_file_path, train_xs, train_ys,
+                                                              validation_xs, CLASSES_TO_NUM_DIC, validation_ys,
+                                                              learning_rate=0.0005)
+        final_results = pd.concat([adam_lr_0005_rnn_results])
 
     if should_compute["pretrain_embeddings_LSTM_CONV"]:
-        ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs, train_ys,
-                                                                         validation_xs, validation_ys)
-        pretrain_embeddings_LSTM_CONV_results = evaluate(validation_ys, ys_pretrain_embeddings_LSTM_CONV,
-                                                         'pretrain_embeddings_LSTM_CONV',
-                                                         classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        pretrain_embeddings_LSTM_CONV_results = pretrain_embeddings_LSTM_CONV_cv(embeddings_file_path, train_xs,
+                                                                                 train_ys, validation_xs,
+                                                                                 CLASSES_TO_NUM_DIC,
+                                                                                 validation_ys)
         final_results = pd.concat([pretrain_embeddings_LSTM_CONV_results])
 
     if should_compute["preprocess_tfidf_rnn"]:
-        ys_preprocess_tfidf_rnn = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
-        preprocess_tfidf_rnn_results = evaluate(validation_ys, ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf',
-                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        preprocess_tfidf_rnn_results = tfidf_rnn_cv(embeddings_file_path,
+                                                    preprocessed_train_xs,
+                                                    train_ys,
+                                                    preprocessed_validation_xs,
+                                                    CLASSES_TO_NUM_DIC,
+                                                    validation_ys)
         final_results = pd.concat([preprocess_tfidf_rnn_results])
 
     if should_compute["preprocess_calculated_embeddings_rnn"]:
-        ys_preprocess_calculated_embeddings_rnn = calculated_embeddings_rnn(preprocessed_train_xs, train_ys,
-                                                                            preprocessed_validation_xs, validation_ys)
-        preprocess_calculated_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_calculated_embeddings_rnn,
-                                                                'preprocess_calculated_embeddings_rnn',
-                                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        preprocess_calculated_embeddings_rnn_results = calculated_embeddings_rnn_cv(embeddings_file_path,
+                                                                                    preprocessed_train_xs,
+                                                                                    train_ys,
+                                                                                    preprocessed_validation_xs,
+                                                                                    CLASSES_TO_NUM_DIC,
+                                                                                    validation_ys)
         final_results = pd.concat([preprocess_calculated_embeddings_rnn_results])
 
     if should_compute["preprocess_pretrain_embeddings_rnn"]:
-        ys_preprocess_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, preprocessed_train_xs,
-                                                                        train_ys, preprocessed_validation_xs,
-                                                                        validation_ys)
-        preprocess_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_pretrain_embeddings_rnn,
-                                                              'preprocess_pretrain-embeddings-rnn',
-                                                              classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
-
-    if should_compute["pretrain_embeddings_LSTM_CONV"]:
-        ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs, train_ys,
-                                                                         validation_xs, validation_ys)
-        pretrain_embeddings_LSTM_CONV_results = evaluate(validation_ys, ys_pretrain_embeddings_LSTM_CONV,
-                                                         'pretrain_embeddings_LSTM_CONV',
-                                                         classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([pretrain_embeddings_LSTM_CONV_results])
-
-    if should_compute["preprocess_tfidf_rnn"]:
-        ys_preprocess_tfidf_rnn = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_validation_xs, validation_ys)
-        preprocess_tfidf_rnn_results = evaluate(validation_ys, ys_preprocess_tfidf_rnn, 'preprocess_rnn-tfidf',
-                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([preprocess_tfidf_rnn_results])
-
-    if should_compute["preprocess_calculated_embeddings_rnn"]:
-        ys_preprocess_calculated_embeddings_rnn = calculated_embeddings_rnn(preprocessed_train_xs, train_ys,
-                                                                            preprocessed_validation_xs, validation_ys)
-        preprocess_calculated_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_calculated_embeddings_rnn,
-                                                                'preprocess_calculated_embeddings_rnn',
-                                                                classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([preprocess_calculated_embeddings_rnn_results])
-
-    if should_compute["preprocess_pretrain_embeddings_rnn"]:
-        ys_preprocess_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, preprocessed_train_xs,
-                                                                        train_ys, preprocessed_validation_xs,
-                                                                        validation_ys)
-        preprocess_pretrain_embeddings_rnn_results = evaluate(validation_ys, ys_preprocess_pretrain_embeddings_rnn,
-                                                              'preprocess_pretrain-embeddings-rnn',
-                                                              classes_index=list(CLASSES_TO_NUM_DIC.values()))
+        preprocess_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv(embeddings_file_path,
+                                                                                preprocessed_train_xs,
+                                                                                train_ys,
+                                                                                preprocessed_validation_xs,
+                                                                                CLASSES_TO_NUM_DIC,
+                                                                                validation_ys)
         final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
 
     final_results.sort_values('micro_f1', ascending=False)

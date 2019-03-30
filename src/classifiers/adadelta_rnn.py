@@ -44,9 +44,7 @@ def adadelta_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epo
     nn_model.add(Dense(32, activation='tanh'))
     nn_model.add(Flatten())
     nn_model.add(Dense(num_classes, activation='softmax'))
-    nn_model.compile(optimizer="adadelta",
-                     loss="sparse_categorical_crossentropy",
-                     metrics=["accuracy"])
+    nn_model.compile(optimizer="adadelta", loss="sparse_categorical_crossentropy")
 
     if verbose == 1:
         print(nn_model.summary())

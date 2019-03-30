@@ -16,11 +16,13 @@ from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
 from unidecode import unidecode
+from sklearn.model_selection import StratifiedKFold
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
+FOLDS_CV = 5
 
 
 def tokenize(text):
@@ -143,11 +145,11 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     :param classes_index: the corresponding index for each class label
     :return:
     """
-    accuracy = metrics.accuracy_score(real_ys, predicted_ys)
+
     macro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="macro")
     micro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="micro")
 
-    df = pd.DataFrame(OrderedDict({'accuracy': accuracy, 'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
+    df = pd.DataFrame(OrderedDict({'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
     df.rename(index={0: model_name}, inplace=True)
     print(df)
 
@@ -211,7 +213,7 @@ def plot_graphic(history, name):
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.png')
+    pyplot.savefig("plots/" + name + '-' + str(int(time.time())) + '.png')
 
 
 def remove_emojis(tweet):
@@ -310,3 +312,23 @@ def own_set_seed():
     tensorflow.set_random_seed(0)
     sess = tensorflow.Session(graph=tensorflow.get_default_graph(), config=session_conf)
     keras.backend.set_session(sess)
+
+
+# Returns a list with FOLDS_CV rows
+# Each row has a 4-tuple (train_xs, train_ys, validations_xs, validation_ys)
+# Each row represents a fold
+def k_fold_cross_validation(data_xs, data_ys):
+    # The folds are made by preserving the percentage of samples for each class.
+    data = []
+    skf = StratifiedKFold(FOLDS_CV, False, 1)
+
+    # We need convert the data to numpy.array for indexing by other numpy.array
+    data_xs = np.array(data_xs)
+    data_ys = np.array(data_ys)
+    for train_index, val_index in skf.split(data_xs, data_ys):
+        train_xs, validation_xs = data_xs[train_index], data_xs[val_index]
+        train_ys, validation_ys = data_ys[train_index], data_ys[val_index]
+
+        data.append((train_xs, train_ys, validation_xs, validation_ys))
+
+    return data

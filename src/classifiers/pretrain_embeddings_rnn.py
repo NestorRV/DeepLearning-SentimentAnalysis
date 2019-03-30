@@ -47,9 +47,7 @@ def pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_y
     nn_model.add(Flatten())
     nn_model.add(Dense(num_classes, activation='softmax'))
     adam_optimizer = Adam(lr=learning_rate)
-    nn_model.compile(optimizer=adam_optimizer,
-                     loss="sparse_categorical_crossentropy",
-                     metrics=["accuracy"])
+    nn_model.compile(optimizer=adam_optimizer, loss="sparse_categorical_crossentropy")
 
     if verbose == 1:
         print(nn_model.summary())
