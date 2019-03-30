@@ -14,10 +14,10 @@ from src.util.utilities import *
 
 
 def main():
-    embeddings_file_path = "data/embeddings/fasttext_spanish_twitter_100d.vec"
-    train_raw_tweets = get_raw_tweets('data/input/train.xml')
-    test_raw_tweets = get_raw_tweets('data/input/test.xml')
-    validation_raw_tweets = get_raw_tweets('data/input/validation.xml')
+    embeddings_file_path = "../data/embeddings/fasttext_spanish_twitter_100d.vec"
+    train_raw_tweets = get_raw_tweets('../data/input/train.xml')
+    test_raw_tweets = get_raw_tweets('../data/input/test.xml')
+    validation_raw_tweets = get_raw_tweets('../data/input/validation.xml')
 
     """ Mapping classes to numbers and vice versa """
 
