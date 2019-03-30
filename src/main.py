@@ -190,10 +190,6 @@ def main():
                                                               classes_index=list(CLASSES_TO_NUM_DIC.values()))
         final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
 
-        adam_lr_0005_results = evaluate(validation_ys, ys_adam_lr_0005_rnn, 'adam_lr_0005',
-                                        classes_index=list(CLASSES_TO_NUM_DIC.values()))
-        final_results = pd.concat([adam_lr_0005_results])
-
     if should_compute["pretrain_embeddings_LSTM_CONV"]:
         ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs, train_ys,
                                                                          validation_xs, validation_ys)
