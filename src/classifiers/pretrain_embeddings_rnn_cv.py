@@ -3,7 +3,7 @@ from src.classifiers.pretrain_embeddings_rnn import pretrain_embeddings_rnn
 from src.util.utilities import *
 
 
-def calculated_embeddings_rnn_cv(embeddings_path, train_xs, train_ys, test_xs, classes_to_num_dic, test_ys=None, epochs=25, verbose=1, num_classes=4):
+def pretrain_embeddings_rnn_cv(embeddings_path, train_xs, train_ys, test_xs, classes_to_num_dic, test_ys=None, epochs=25, verbose=1, num_classes=4):
     own_set_seed()
 
     model_name = "pretrain_embeddings_rnn"

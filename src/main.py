@@ -119,7 +119,7 @@ def main():
      This will be very poor and may not fit the reality.
     """
 
-    if should_compute["ys_pretrain_embeddings_rnn"]:
+    if should_compute["pretrain_embeddings_rnn"]:
         ys_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv(embeddings_file_path, train_xs,
                                                                         train_ys,
                                                                         validation_xs,
