@@ -218,20 +218,20 @@ def plot_graphic(history, name):
 
 def remove_emojis(tweet):
     # :), : ), :-), (:, ( :, (-:, :'), :D, : D, :-D, xD, x-D, XD, X-D, xd
-    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' EMO_POS ', tweet)
-    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
+    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # jajaja, lol
-    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # hahaha
-    tweet = re.sub(r'(a*ha+h[ha])', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(a*ha+h[ha])', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # <3, :*
-    tweet = re.sub(r'(<3|:\*)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(<3|:\*)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # ;-), ;), ;-D, ;D, (;,  (-;, ^^
-    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # :-(, : (, :(, ):, )-:
-    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' EMO_NEG ', tweet)
+    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ', tweet)
     # :,(, :'(, :"(
-    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' EMO_NEG ', tweet)
+    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ', tweet)
     return tweet
 
 

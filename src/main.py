@@ -52,22 +52,22 @@ def main():
     should_compute = {
         "tfidf_rnn": False,
         "calculated_embeddings_rnn": False,
-        "ys_pretrain_embeddings_rnn": False,
+        "pretrain_embeddings_rnn": True,
         "sigmoid_pretrain_embeddings_rnn": False,
         "epochs100_pretrain_embeddings_rnn": False,
         "stacked_lstm_rnn": False,
-        "adadelta_rnn": True,
+        "adadelta_rnn": False,
         "adam_lr_0005_rnn": False,
         "pretrain_embeddings_LSTM_CONV": False,
         "preprocess_tfidf_rnn": False,
         "preprocess_calculated_embeddings_rnn": False,
-        "preprocess_pretrain_embeddings_rnn": False
+        "preprocess_pretrain_embeddings_rnn": True
     }
 
     should_submit = {
         "tfidf_rnn": False,
         "calculated_embeddings_rnn": False,
-        "ys_pretrain_embeddings_rnn": False,
+        "pretrain_embeddings_rnn": False,
         "sigmoid_pretrain_embeddings_rnn": False,
         "epochs100_pretrain_embeddings_rnn": False,
         "stacked_lstm_rnn": False,
@@ -207,7 +207,7 @@ def main():
 
         kaggle_file(test_ids, test_ys_calculated_embeddings_rnn, 'calculated_embeddings_rnn', NUM_TO_CLASSES_DIC)
 
-    if should_submit["ys_pretrain_embeddings_rnn"]:
+    if should_submit["pretrain_embeddings_rnn"]:
         test_ys_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path,
                                                                   train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain-embeddings-rnn', NUM_TO_CLASSES_DIC)
