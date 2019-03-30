@@ -1,4 +1,3 @@
-import numpy as np
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
@@ -12,7 +11,8 @@ from src.util.utilities import *
 def calculated_embeddings_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=4):
     """Classification with RNN and embeddings (no pre-trained)
     """
-    np.random.seed(seed=1)
+
+    own_set_seed()
 
     # Build vocabulary and corpus indexes
     vocabulary_train, corpus_train_index = fit_transform_vocabulary(train_xs)

@@ -1,11 +1,13 @@
+import random
+import re
 import time
+import xml.etree.ElementTree
 from collections import OrderedDict
 
 import keras
+import numpy as np
 import pandas as pd
-import re
 import tensorflow
-import xml.etree.ElementTree
 from matplotlib import pyplot
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -145,16 +147,9 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     macro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="macro")
     micro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="micro")
 
-    print("*** Results " + model_name + " ***")
-    print("Accuracy: " + str(accuracy))
-    print("Macro-F1: " + str(macro_f1))
-    print("Micro-F1: " + str(micro_f1))
-
-    df = pd.DataFrame(OrderedDict({'accuracy': accuracy,
-                                   'macro_f1': macro_f1,
-                                   'micro_f1': micro_f1}), index=[0])
-
+    df = pd.DataFrame(OrderedDict({'accuracy': accuracy, 'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
     df.rename(index={0: model_name}, inplace=True)
+    print(df)
 
     return df
 
@@ -297,3 +292,21 @@ def micro_f1(y_true, y_pred):
 
 def micro_f1_loss(y_true, y_pred):
     return 1 - micro_f1(y_true, y_pred)
+
+
+def own_set_seed():
+    # The below is necessary for starting Numpy generated random numbers in a well-defined initial state.
+    np.random.seed(0)
+
+    # The below is necessary for starting core Python generated random numbers in a well-defined state.
+    random.seed(0)
+
+    # Force TensorFlow to use single thread. Multiple threads are a potential source of non-reproducible results.
+    # For further details, see: https://stackoverflow.com/questions/42022950/
+    session_conf = tensorflow.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+
+    # The below tf.set_random_seed() will make random number generation in the TensorFlow backend have a well-defined
+    # initial state. For further details, see: https://www.tensorflow.org/api_docs/python/tf/set_random_seed
+    tensorflow.set_random_seed(0)
+    sess = tensorflow.Session(graph=tensorflow.get_default_graph(), config=session_conf)
+    keras.backend.set_session(sess)

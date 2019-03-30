@@ -12,7 +12,9 @@ from src.util.utilities import *
 def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=4):
     """Classification using a RNN with tfidf as features
     """
-    np.random.seed(seed=1)
+
+    own_set_seed()
+
     # Representation
     tfidf_parser = TfidfVectorizer(tokenizer=tokenize, lowercase=False, analyzer='word')
 
