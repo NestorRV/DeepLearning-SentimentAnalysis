@@ -1,19 +1,18 @@
 import numpy as np
-
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
-from keras.preprocessing import sequence
 from keras.optimizers import Adam
+from keras.preprocessing import sequence
 
 from src.util.utilities import *
 
 
-def pretrain_embedings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None,
-                           epochs=25, learning_rate=0.001, verbose=1, num_classes=4):
-    """Classification with RNN and embedings (no pre-trained)
+def pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None,
+                            epochs=25, learning_rate=0.001, verbose=1, num_classes=4):
+    """Classification with RNN and embeddings (no pre-trained)
     """
 
     np.random.seed(seed=1)
@@ -53,7 +52,7 @@ def pretrain_embedings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys
                      loss="sparse_categorical_crossentropy",
                      metrics=["accuracy"])
 
-    if (verbose == 1):
+    if verbose == 1:
         print(nn_model.summary())
 
     train_features_pad = sequence.pad_sequences(corpus_train_index, maxlen=max_len_input,
@@ -64,13 +63,13 @@ def pretrain_embedings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys
                                                padding="post", truncating="post",
                                                dtype=type(corpus_test_index[0][0]))
 
-    if (test_ys is None):
+    if test_ys is None:
         nn_model.fit(train_features_pad, np_labels_train, batch_size=32, epochs=epochs, verbose=verbose)
     else:
         history = nn_model.fit(train_features_pad, np_labels_train,
                                validation_data=(test_features_pad, test_ys),
                                batch_size=32, epochs=epochs, verbose=verbose)
-        plot_graphic(history, 'pretrain_embedings_rnn')
+        plot_graphic(history, 'pretrain_embeddings_rnn')
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
     return y_labels
