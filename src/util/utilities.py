@@ -142,25 +142,15 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     :return:
     """
     accuracy = metrics.accuracy_score(real_ys, predicted_ys)
-    macro_precision = metrics.precision_score(real_ys, predicted_ys,
-                                              labels=classes_index, average="macro")
-    macro_recall = metrics.recall_score(real_ys, predicted_ys,
-                                        labels=classes_index, average="macro")
-    macro_f1 = metrics.f1_score(real_ys, predicted_ys,
-                                labels=classes_index, average="macro")
-    micro_f1 = metrics.f1_score(real_ys, predicted_ys,
-                                labels=classes_index, average="micro")
+    macro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="macro")
+    micro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="micro")
 
     print("*** Results " + model_name + " ***")
     print("Accuracy: " + str(accuracy))
-    print("Macro-Precision: " + str(macro_precision))
-    print("Macro-Recall: " + str(macro_recall))
     print("Macro-F1: " + str(macro_f1))
     print("Micro-F1: " + str(micro_f1))
 
     df = pd.DataFrame(OrderedDict({'accuracy': accuracy,
-                                   'macro_precision': macro_precision,
-                                   'macro_recall': macro_recall,
                                    'macro_f1': macro_f1,
                                    'micro_f1': micro_f1}), index=[0])
 
