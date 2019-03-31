@@ -15,12 +15,16 @@ from nltk.tokenize.casual import TweetTokenizer
 from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
+from sklearn.model_selection import StratifiedKFold
 from unidecode import unidecode
+
+import src.util.global_vars
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
+FOLDS_CV = 5
 
 
 def tokenize(text):
@@ -132,7 +136,7 @@ def read_embeddings(path, offset):
     return word_embeddings, word_indexes
 
 
-def evaluate(real_ys, predicted_ys, model_name, classes_index):
+def evaluate(real_ys, predicted_ys, model_name):
     """
     evaluate, is a function used to obtain the evaluation metrics for model_name with real_ys as the real labels and
     predicted_ys as the predicted labels.
@@ -140,31 +144,30 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     :param real_ys: the real labels
     :param predicted_ys: the predicted labels
     :param model_name: the model to evaluate
-    :param classes_index: the corresponding index for each class label
     :return:
     """
-    accuracy = metrics.accuracy_score(real_ys, predicted_ys)
-    macro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="macro")
-    micro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="micro")
+    macro_f1 = metrics.f1_score(real_ys, predicted_ys,
+                                labels=list(src.util.global_vars.__CLASSES_TO_NUM_DIC__.values()), average="macro")
+    micro_f1 = metrics.f1_score(real_ys, predicted_ys,
+                                labels=list(src.util.global_vars.__CLASSES_TO_NUM_DIC__.values()), average="micro")
 
-    df = pd.DataFrame(OrderedDict({'accuracy': accuracy, 'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
+    df = pd.DataFrame(OrderedDict({'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
     df.rename(index={0: model_name}, inplace=True)
     print(df)
 
     return df
 
 
-def kaggle_file(ids, ys, model, num_to_classes_dic):
+def kaggle_file(ids, ys, model):
     """
     src.util.utilities.kaggle_file, a function used to prepare the submission file.
 
     :param ids: instances ID's
     :param ys: the predicted labels
     :param model: the model name
-    :param num_to_classes_dic: a dictionary of index: "real class label" pairs.
     :return:
     """
-    real_classes = [num_to_classes_dic[y] for y in ys]
+    real_classes = [src.util.global_vars.__NUM_TO_CLASSES_DIC__[y] for y in ys]
     df = pd.DataFrame(OrderedDict({'Id': ids, 'Expected': real_classes}))
     file_name = '../submissions/' + model + '-' + str(int(time.time())) + '.csv'
     df.to_csv(file_name, index=False)
@@ -216,20 +219,20 @@ def plot_graphic(history, name):
 
 def remove_emojis(tweet):
     # :), : ), :-), (:, ( :, (-:, :'), :D, : D, :-D, xD, x-D, XD, X-D, xd
-    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' EMO_POS ', tweet)
-    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
+    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # jajaja, lol
-    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # hahaha
-    tweet = re.sub(r'(a*ha+h[ha])', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(a*ha+h[ha])', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # <3, :*
-    tweet = re.sub(r'(<3|:\*)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(<3|:\*)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # ;-), ;), ;-D, ;D, (;,  (-;, ^^
-    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # :-(, : (, :(, ):, )-:
-    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' EMO_NEG ', tweet)
+    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ', tweet)
     # :,(, :'(, :"(
-    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' EMO_NEG ', tweet)
+    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ', tweet)
     return tweet
 
 
@@ -310,3 +313,23 @@ def own_set_seed():
     tensorflow.set_random_seed(0)
     sess = tensorflow.Session(graph=tensorflow.get_default_graph(), config=session_conf)
     keras.backend.set_session(sess)
+
+
+# Returns a list with FOLDS_CV rows
+# Each row has a 4-tuple (train_xs, train_ys, validations_xs, validation_ys)
+# Each row represents a fold
+def k_fold_cross_validation(data_xs, data_ys):
+    # The folds are made by preserving the percentage of samples for each class.
+    data = []
+    skf = StratifiedKFold(FOLDS_CV, False, 1)
+
+    # We need convert the data to numpy.array for indexing by other numpy.array
+    data_xs = np.array(data_xs)
+    data_ys = np.array(data_ys)
+    for train_index, val_index in skf.split(data_xs, data_ys):
+        train_xs, validation_xs = data_xs[train_index], data_xs[val_index]
+        train_ys, validation_ys = data_ys[train_index], data_ys[val_index]
+
+        data.append((train_xs, train_ys, validation_xs, validation_ys))
+
+    return data
