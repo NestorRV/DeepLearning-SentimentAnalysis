@@ -6,11 +6,15 @@ from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rn
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
 from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
 from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
+from src.classifiers.cv.big_LSTM_CONV_rnn_cv import big_LSTM_CONV_rnn_cv
+from src.classifiers.cv.dropout_LSTM_CONV_rnn_cv import dropout_LSMT_CONV_rnn_cv
 from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddings_rnn
 from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
 from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
 from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.single.tfidf_rnn import tfidf_rnn
+from src.classifiers.single.big_LSTM_CONV_rnn import big_LSTM_CONV_rnn
+from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
 from src.util.utilities import *
 
 
@@ -65,7 +69,9 @@ def main():
         "pretrain_embeddings_LSTM_CONV": False,
         "preprocess_tfidf_rnn": False,
         "preprocess_calculated_embeddings_rnn": False,
-        "preprocess_pretrain_embeddings_rnn": False
+        "preprocess_pretrain_embeddings_rnn": False,
+        "big_LSTM_CONV_rnn": False,
+        "dropout_LSTM_CONV_rnn": True,
     }
 
     should_submit = {
@@ -80,7 +86,9 @@ def main():
         "pretrain_embeddings_LSTM_CONV": False,
         "preprocess_tfidf_rnn": False,
         "preprocess_calculated_embeddings_rnn": False,
-        "preprocess_pretrain_embeddings_rnn": False
+        "preprocess_pretrain_embeddings_rnn": False,
+        "big_LSTM_CONV_rnn": False,
+        "dropout_LSTM_CONV_rnn": False,
     }
 
     final_results = pd.DataFrame
@@ -163,7 +171,22 @@ def main():
                                                                                 validation_ys)
         final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
 
+    if should_compute["big_LSTM_CONV_rnn"]:
+        big_LSTM_CONV_rnn_results = big_LSTM_CONV_rnn_cv(embeddings_file_path,
+                                                         preprocessed_train_xs, train_ys,
+                                                         preprocessed_validation_xs,
+                                                         validation_ys)
+        final_results = pd.concat([big_LSTM_CONV_rnn_results])
+
+    if should_compute["dropout_LSTM_CONV_rnn"]:
+        dropout_LSTM_CONV_rnn_results = dropout_LSMT_CONV_rnn_cv(embeddings_file_path,
+                                                                 preprocessed_train_xs, train_ys,
+                                                                 preprocessed_validation_xs,
+                                                                 validation_ys)
+        final_results = pd.concat([dropout_LSTM_CONV_rnn_results])
+
     final_results.sort_values('micro_f1', ascending=False)
+    print(final_results)
 
     """ Submissions """
 
@@ -198,6 +221,16 @@ def main():
         test_ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs, train_ys,
                                                                               test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
+
+    if should_submit["big_LSTM_CONV_rnn"]:
+        test_ys_big_LSTM_CONV_rnn = big_LSTM_CONV_rnn(embeddings_file_path, preprocessed_train_xs, train_ys,
+                                                      preprocessed_test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_big_LSTM_CONV_rnn, 'big_LSTM_CONV_rnn')
+
+    if should_submit["dropout_LSTM_CONV_rnn"]:
+        test_ys_dropout_LSTM_CONV_rnn = dropout_LSMT_CONV_rnn(embeddings_file_path, preprocessed_train_xs, train_ys,
+                                                              preprocessed_test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
 
 if __name__ == "__main__":
