@@ -15,8 +15,10 @@ from nltk.tokenize.casual import TweetTokenizer
 from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
-from unidecode import unidecode
 from sklearn.model_selection import StratifiedKFold
+from unidecode import unidecode
+
+import src.util.global_vars
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
@@ -134,7 +136,7 @@ def read_embeddings(path, offset):
     return word_embeddings, word_indexes
 
 
-def evaluate(real_ys, predicted_ys, model_name, classes_index):
+def evaluate(real_ys, predicted_ys, model_name):
     """
     evaluate, is a function used to obtain the evaluation metrics for model_name with real_ys as the real labels and
     predicted_ys as the predicted labels.
@@ -142,12 +144,12 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     :param real_ys: the real labels
     :param predicted_ys: the predicted labels
     :param model_name: the model to evaluate
-    :param classes_index: the corresponding index for each class label
     :return:
     """
-
-    macro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="macro")
-    micro_f1 = metrics.f1_score(real_ys, predicted_ys, labels=classes_index, average="micro")
+    macro_f1 = metrics.f1_score(real_ys, predicted_ys,
+                                labels=list(src.util.global_vars.__CLASSES_TO_NUM_DIC__.values()), average="macro")
+    micro_f1 = metrics.f1_score(real_ys, predicted_ys,
+                                labels=list(src.util.global_vars.__CLASSES_TO_NUM_DIC__.values()), average="micro")
 
     df = pd.DataFrame(OrderedDict({'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
     df.rename(index={0: model_name}, inplace=True)
@@ -156,17 +158,16 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     return df
 
 
-def kaggle_file(ids, ys, model, num_to_classes_dic):
+def kaggle_file(ids, ys, model):
     """
     src.util.utilities.kaggle_file, a function used to prepare the submission file.
 
     :param ids: instances ID's
     :param ys: the predicted labels
     :param model: the model name
-    :param num_to_classes_dic: a dictionary of index: "real class label" pairs.
     :return:
     """
-    real_classes = [num_to_classes_dic[y] for y in ys]
+    real_classes = [src.util.global_vars.__NUM_TO_CLASSES_DIC__[y] for y in ys]
     df = pd.DataFrame(OrderedDict({'Id': ids, 'Expected': real_classes}))
     file_name = '../submissions/' + model + '-' + str(int(time.time())) + '.csv'
     df.to_csv(file_name, index=False)
