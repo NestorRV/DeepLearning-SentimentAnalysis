@@ -1,4 +1,4 @@
-from keras.layers import MaxPooling1D, Conv1D, AveragePooling1D
+from keras.layers import Conv1D
 from keras.layers.core import Dense, Dropout
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding

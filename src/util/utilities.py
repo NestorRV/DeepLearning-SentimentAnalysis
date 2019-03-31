@@ -11,8 +11,8 @@ import tensorflow
 from matplotlib import pyplot
 from nltk import word_tokenize
 from nltk.corpus import stopwords
-from nltk.tokenize.casual import TweetTokenizer
 from nltk.stem import SnowballStemmer
+from nltk.tokenize.casual import TweetTokenizer
 from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
@@ -27,14 +27,11 @@ RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
 FOLDS_CV = 5
 BAD_WORDS = ["cabron", "cabrona", "mierda", "cojones", "joder", "tonto", "puto", "puta", "gilipollas", "hostia",
-             "ostia",
-             "follen", "follar", "coño", "cago", "cagar", "tonto", "tonta", "idiota", "estupido", "feo", "fea", "gordo",
-             "gorda"
-             "maldito", "maldita", "pudrete", "zorra", "imbecil", "baboso", "babosa", "besugo", "besufa", "brasas",
-             "capullo", "capulla",
-             "cenutrio", "cenutria", "ceporro", "ceporra", "cretino", "cretina", "gañan", "lameculos", "lerdo", "lerda",
-             "palurdo",
-             "palurda", "panoli", "pagafantas", "tocapelotas", ]
+             "ostia", "follen", "follar", "coño", "cago", "cagar", "tonto", "tonta", "idiota", "estupido", "feo", "fea",
+             "gordo", "gorda", "maldito", "maldita", "pudrete", "zorra", "imbecil", "baboso", "babosa", "besugo",
+             "besufa", "brasas", "capullo", "capulla", "cenutrio", "cenutria", "ceporro", "ceporra", "cretino",
+             "cretina", "gañan", "lameculos", "lerdo", "lerda", "palurdo", "palurda", "panoli", "pagafantas",
+             "tocapelotas"]
 
 
 def tokenize(text):

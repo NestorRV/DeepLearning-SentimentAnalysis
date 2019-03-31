@@ -1,8 +1,8 @@
 from keras.layers import MaxPooling1D, Conv1D, AveragePooling1D
+from keras.layers.core import Dense, Dropout
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
-from keras.layers.core import Dense, Dropout
 from keras.models import Sequential
 from keras.preprocessing import sequence
 
