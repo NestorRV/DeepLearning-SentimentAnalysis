@@ -1,16 +1,16 @@
 import src.util.global_vars
-from src.classifiers.adadelta_rnn_cv import adadelta_rnn_cv
-from src.classifiers.calculated_embeddings_rnn import calculated_embeddings_rnn
-from src.classifiers.calculated_embeddings_rnn_cv import calculated_embeddings_rnn_cv
-from src.classifiers.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
-from src.classifiers.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
-from src.classifiers.pretrain_embeddings_rnn import pretrain_embeddings_rnn
-from src.classifiers.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
-from src.classifiers.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
-from src.classifiers.stacked_lstm_rnn import stacked_lstm_rnn
-from src.classifiers.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
-from src.classifiers.tfidf_rnn import tfidf_rnn
-from src.classifiers.tfidf_rnn_cv import tfidf_rnn_cv
+from src.classifiers.cv.adadelta_rnn_cv import adadelta_rnn_cv
+from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddings_rnn
+from src.classifiers.cv.calculated_embeddings_rnn_cv import calculated_embeddings_rnn_cv
+from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
+from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
+from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
+from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
+from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
+from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
+from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
+from src.classifiers.single.tfidf_rnn import tfidf_rnn
+from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
 from src.util.utilities import *
 
 
