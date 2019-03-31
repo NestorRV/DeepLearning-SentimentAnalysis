@@ -8,6 +8,7 @@ from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
 from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
 from src.classifiers.cv.big_LSTM_CONV_rnn_cv import big_LSTM_CONV_rnn_cv
 from src.classifiers.cv.dropout_LSTM_CONV_rnn_cv import dropout_LSMT_CONV_rnn_cv
+from src.classifiers.cv.calculated_embeddings_LSTM_CONV_cv import calculated_embeddings_LSTM_CONV_cv
 from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddings_rnn
 from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
 from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
@@ -15,6 +16,7 @@ from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.single.tfidf_rnn import tfidf_rnn
 from src.classifiers.single.big_LSTM_CONV_rnn import big_LSTM_CONV_rnn
 from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
+from src.classifiers.single.calculated_embeddings_LSTM_CONV import calculated_embeddings_LSTM_CONV
 from src.util.utilities import *
 
 
@@ -68,10 +70,13 @@ def main():
         "adam_lr_0005_rnn": False,
         "pretrain_embeddings_LSTM_CONV": False,
         "preprocess_tfidf_rnn": False,
-        "preprocess_calculated_embeddings_rnn": False,
+        "preprocess_calculated_embeddings_rnn": True,
         "preprocess_pretrain_embeddings_rnn": False,
         "big_LSTM_CONV_rnn": False,
-        "dropout_LSTM_CONV_rnn": True,
+        "dropout_LSTM_CONV_rnn": False,
+        "preprocess_pretrain_embeddings_LSTM_CONV": False,
+        "preprocess_calculated_embeddings_LSTM_CONV": False,
+        "epochs50_preprocess_calculated_embeddings_LSTM_CONV": False,
     }
 
     should_submit = {
@@ -89,6 +94,9 @@ def main():
         "preprocess_pretrain_embeddings_rnn": False,
         "big_LSTM_CONV_rnn": False,
         "dropout_LSTM_CONV_rnn": False,
+        "preprocess_pretrain_embeddings_LSTM_CONV": False,
+        "preprocess_calculated_embeddings_LSTM_CONV": False,
+        "epochs50_preprocess_calculated_embeddings_LSTM_CONV": False,
     }
 
     final_results = pd.DataFrame
@@ -171,17 +179,47 @@ def main():
                                                                                 validation_ys)
         final_results = pd.concat([preprocess_pretrain_embeddings_rnn_results])
 
+    if should_compute["preprocess_pretrain_embeddings_LSTM_CONV"]:
+        preprocess_pretrain_embeddings_LSTM_CONV_results = pretrain_embeddings_LSTM_CONV_cv(embeddings_file_path,
+                                                                                            preprocessed_train_xs,
+                                                                                            train_ys,
+                                                                                            preprocessed_validation_xs,
+                                                                                            validation_ys)
+        final_results = pd.concat([preprocess_pretrain_embeddings_LSTM_CONV_results])
+
+    if should_compute["preprocess_calculated_embeddings_LSTM_CONV"]:
+        preprocessed_train_xs = preprocess_tweets(train_xs, True)
+        preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
+        preprocessed_test_xs = preprocess_tweets(test_xs, True)
+
+        preprocess_calculated_embeddings_LSTM_CONV_results = calculated_embeddings_LSTM_CONV_cv(embeddings_file_path,
+                                                                                                preprocessed_train_xs,
+                                                                                                train_ys,
+                                                                                                preprocessed_validation_xs,
+                                                                                                validation_ys)
+        final_results = pd.concat([preprocess_calculated_embeddings_LSTM_CONV_results])
+
+    if should_compute["epochs50_preprocess_calculated_embeddings_LSTM_CONV"]:
+        preprocessed_train_xs = preprocess_tweets(train_xs, True)
+        preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
+        preprocessed_test_xs = preprocess_tweets(test_xs, True)
+
+        epochs50_preprocess_calculated_embeddings_LSTM_CONV_results = calculated_embeddings_LSTM_CONV_cv(
+            embeddings_file_path, preprocessed_train_xs,
+            train_ys, preprocessed_validation_xs, validation_ys, epochs=50)
+        final_results = pd.concat([epochs50_preprocess_calculated_embeddings_LSTM_CONV_results])
+
     if should_compute["big_LSTM_CONV_rnn"]:
         big_LSTM_CONV_rnn_results = big_LSTM_CONV_rnn_cv(embeddings_file_path,
-                                                         preprocessed_train_xs, train_ys,
-                                                         preprocessed_validation_xs,
+                                                         train_xs, train_ys,
+                                                         validation_xs,
                                                          validation_ys)
         final_results = pd.concat([big_LSTM_CONV_rnn_results])
 
     if should_compute["dropout_LSTM_CONV_rnn"]:
         dropout_LSTM_CONV_rnn_results = dropout_LSMT_CONV_rnn_cv(embeddings_file_path,
-                                                                 preprocessed_train_xs, train_ys,
-                                                                 preprocessed_validation_xs,
+                                                                 train_xs, train_ys,
+                                                                 validation_xs,
                                                                  validation_ys)
         final_results = pd.concat([dropout_LSTM_CONV_rnn_results])
 
@@ -222,14 +260,39 @@ def main():
                                                                               test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
 
+    if should_submit["preprocess_pretrain_embeddings_LSTM_CONV"]:
+        test_ys_preprodess_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path,
+                                                                                         preprocessed_train_xs,
+                                                                                         train_ys,
+                                                                                         preprocessed_test_xs,
+                                                                                         verbose=0)
+        kaggle_file(test_ids, test_ys_preprodess_pretrain_embeddings_LSTM_CONV,
+                    'preprocess_pretrain_embeddings_LSTM_CONV')
+
+    if should_submit["preprocess_calculated_embeddings_LSTM_CONV"]:
+        test_ys_preprodess_calculated_embeddings_LSTM_CONV = calculated_embeddings_LSTM_CONV(embeddings_file_path,
+                                                                                             preprocessed_train_xs,
+                                                                                             train_ys,
+                                                                                             preprocessed_test_xs,
+                                                                                             verbose=0)
+        kaggle_file(test_ids, test_ys_preprodess_calculated_embeddings_LSTM_CONV,
+                    'preprocess_calculated_embeddings_LSTM_CONV')
+
+    if should_submit["epochs50_preprocess_calculated_embeddings_LSTM_CONV"]:
+        test_ys_epochs50_preprodess_calculated_embeddings_LSTM_CONV = calculated_embeddings_LSTM_CONV(
+            embeddings_file_path, preprocessed_train_xs, train_ys,
+            preprocessed_test_xs, verbose=0, epochs=50)
+        kaggle_file(test_ids, test_ys_epochs50_preprodess_calculated_embeddings_LSTM_CONV,
+                    'epochs50_preprocess_calculated_embeddings_LSTM_CONV')
+
     if should_submit["big_LSTM_CONV_rnn"]:
         test_ys_big_LSTM_CONV_rnn = big_LSTM_CONV_rnn(embeddings_file_path, preprocessed_train_xs, train_ys,
-                                                      preprocessed_test_xs, verbose=0)
+                                                      test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_big_LSTM_CONV_rnn, 'big_LSTM_CONV_rnn')
 
     if should_submit["dropout_LSTM_CONV_rnn"]:
-        test_ys_dropout_LSTM_CONV_rnn = dropout_LSMT_CONV_rnn(embeddings_file_path, preprocessed_train_xs, train_ys,
-                                                              preprocessed_test_xs, verbose=0)
+        test_ys_dropout_LSTM_CONV_rnn = dropout_LSMT_CONV_rnn(embeddings_file_path, train_xs, train_ys,
+                                                              test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
 

@@ -12,6 +12,7 @@ from matplotlib import pyplot
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.tokenize.casual import TweetTokenizer
+from nltk.stem import SnowballStemmer
 from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
@@ -25,6 +26,15 @@ EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
 FOLDS_CV = 5
+BAD_WORDS = ["cabron", "cabrona", "mierda", "cojones", "joder", "tonto", "puto", "puta", "gilipollas", "hostia",
+             "ostia",
+             "follen", "follar", "coño", "cago", "cagar", "tonto", "tonta", "idiota", "estupido", "feo", "fea", "gordo",
+             "gorda"
+             "maldito", "maldita", "pudrete", "zorra", "imbecil", "baboso", "babosa", "besugo", "besufa", "brasas",
+             "capullo", "capulla",
+             "cenutrio", "cenutria", "ceporro", "ceporra", "cretino", "cretina", "gañan", "lameculos", "lerdo", "lerda",
+             "palurdo",
+             "palurda", "panoli", "pagafantas", "tocapelotas", ]
 
 
 def tokenize(text):
@@ -236,7 +246,7 @@ def remove_emojis(tweet):
     return tweet
 
 
-def preprocess_tweets(tweets):
+def preprocess_tweets(tweets, stemming=False):
     # download('stopwords')
     # download('punkt')
     stop_words = stopwords.words('spanish')
@@ -244,6 +254,9 @@ def preprocess_tweets(tweets):
     preprocessed_tweets = []
     # lower case and remove accent marks
     lowercase_tweets = [unidecode(tweet.lower()) for tweet in tweets]
+
+    # stemming words
+    stemmer = SnowballStemmer('spanish')
 
     for tweet in lowercase_tweets:
         # remove punctuation
@@ -271,8 +284,16 @@ def preprocess_tweets(tweets):
         tweet = re.sub(r'\s+', ' ', tweet)
 
         tweet_words = word_tokenize(tweet)
+
+        if stemming:
+            tweet_words = [stemmer.stem(word) for word in tweet_words]
+
+        # Replace bad words by NEGATIVE x4
+        tweet_words = [' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ' if word in BAD_WORDS else word for word in tweet_words]
+
         # number to words
-        tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in tweet_words]
+        tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in
+                       tweet_words]
         # remove stopwords
         tweet_words = ' '.join(word for word in tweet_words if word not in stop_words)
 
