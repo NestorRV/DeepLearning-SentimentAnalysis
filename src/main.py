@@ -188,25 +188,23 @@ def main():
         final_results = pd.concat([preprocess_pretrain_embeddings_LSTM_CONV_results])
 
     if should_compute["preprocess_calculated_embeddings_LSTM_CONV"]:
-        preprocessed_train_xs = preprocess_tweets(train_xs, True)
-        preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
-        preprocessed_test_xs = preprocess_tweets(test_xs, True)
+        stemming_preprocessed_train_xs = preprocess_tweets(train_xs, True)
+        stemming_preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
 
         preprocess_calculated_embeddings_LSTM_CONV_results = calculated_embeddings_LSTM_CONV_cv(embeddings_file_path,
-                                                                                                preprocessed_train_xs,
+                                                                                                stemming_preprocessed_train_xs,
                                                                                                 train_ys,
-                                                                                                preprocessed_validation_xs,
+                                                                                                stemming_preprocessed_validation_xs,
                                                                                                 validation_ys)
         final_results = pd.concat([preprocess_calculated_embeddings_LSTM_CONV_results])
 
     if should_compute["epochs50_preprocess_calculated_embeddings_LSTM_CONV"]:
-        preprocessed_train_xs = preprocess_tweets(train_xs, True)
-        preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
-        preprocessed_test_xs = preprocess_tweets(test_xs, True)
+        stemming_preprocessed_train_xs = preprocess_tweets(train_xs, True)
+        stemming_preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
 
         epochs50_preprocess_calculated_embeddings_LSTM_CONV_results = calculated_embeddings_LSTM_CONV_cv(
-            embeddings_file_path, preprocessed_train_xs,
-            train_ys, preprocessed_validation_xs, validation_ys, epochs=50)
+            embeddings_file_path, stemming_preprocessed_train_xs,
+            train_ys, stemming_preprocessed_validation_xs, validation_ys, epochs=50)
         final_results = pd.concat([epochs50_preprocess_calculated_embeddings_LSTM_CONV_results])
 
     if should_compute["big_LSTM_CONV_rnn"]:
