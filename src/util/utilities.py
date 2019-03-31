@@ -255,8 +255,8 @@ def preprocess_tweets(tweets):
 
         # Replaces URLs with the word URL
         tweet = re.sub(r'((www\.[\S]+)|(https?://[\S]+))', ' URL ', tweet)
-        # Replace @handle with the word USER_MENTION
-        tweet = re.sub(r'@[\S]+', 'USER_MENTION', tweet)
+        # Remove @handle
+        tweet = re.sub(r'@[\S]+', '', tweet)
         # Replaces #hashtag with hashtag
         tweet = re.sub(r'#(\S+)', r' \1 ', tweet)
         # Remove RT (retweet)
@@ -265,7 +265,7 @@ def preprocess_tweets(tweets):
         tweet = re.sub(r'\.{2,}', ' ', tweet)
         # Strip space, " and ' from tweet
         tweet = tweet.strip(' "\'')
-        # Replace emojis with either EMO_POS or EMO_NEG
+        # Replace emojis with either POSTIIVE or NEGATIVE X4
         tweet = remove_emojis(tweet)
         # Replace multiple spaces with a single space
         tweet = re.sub(r'\s+', ' ', tweet)
