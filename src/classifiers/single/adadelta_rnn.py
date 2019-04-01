@@ -54,12 +54,12 @@ def adadelta_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epo
     test_features_pad = sequence.pad_sequences(corpus_test_index, maxlen=max_len_input, padding="post",
                                                truncating="post", dtype=type(corpus_test_index[0][0]))
 
+    history = None
     if test_ys is None:
         nn_model.fit(train_features_pad, np_labels_train, batch_size=32, epochs=epochs, verbose=verbose)
     else:
         history = nn_model.fit(train_features_pad, np_labels_train, validation_data=(test_features_pad, test_ys),
                                batch_size=32, epochs=epochs, verbose=verbose)
-        plot_graphic(history, 'adadelta_rnn')
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
-    return y_labels
+    return y_labels, history
