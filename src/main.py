@@ -141,7 +141,7 @@ def main():
         final_results = pd.concat([epochs100_pretrain_embeddings_rnn_results])
 
         test_ys_epochs100_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
-                                                                               validation_xs, validation_ys, epochs=100)
+                                                                               test_xs, epochs=100)
         kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn,
                     'sigmoid-epochs100_pretrain_embeddings_rnn-embeddings-rnn')
 
