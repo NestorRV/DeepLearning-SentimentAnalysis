@@ -9,7 +9,7 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def calculated_embeddings_LSTM_CONV(train_xs, train_ys, test_xs, test_ys=None, verbose=1, epochs=25):
+def calculated_embeddings_LSTM_CONV(train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
     """Classification with RNN and embeddings (no pre-trained)
     """
 
