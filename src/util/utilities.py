@@ -1,9 +1,13 @@
+import random
 import re
 import time
 import xml.etree.ElementTree
 from collections import OrderedDict
 
+import keras
+import numpy as np
 import pandas as pd
+import tensorflow
 from matplotlib import pyplot
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -11,12 +15,16 @@ from nltk.tokenize.casual import TweetTokenizer
 from num2words import num2words
 from numpy import array as np_array
 from sklearn import metrics
+from sklearn.model_selection import StratifiedKFold
 from unidecode import unidecode
+
+import src.util.global_vars
 
 TWEET_TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=False)
 EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
+FOLDS_CV = 5
 
 
 def tokenize(text):
@@ -128,7 +136,7 @@ def read_embeddings(path, offset):
     return word_embeddings, word_indexes
 
 
-def evaluate(real_ys, predicted_ys, model_name, classes_index):
+def evaluate(real_ys, predicted_ys, model_name):
     """
     evaluate, is a function used to obtain the evaluation metrics for model_name with real_ys as the real labels and
     predicted_ys as the predicted labels.
@@ -136,48 +144,30 @@ def evaluate(real_ys, predicted_ys, model_name, classes_index):
     :param real_ys: the real labels
     :param predicted_ys: the predicted labels
     :param model_name: the model to evaluate
-    :param classes_index: the corresponding index for each class label
     :return:
     """
-    accuracy = metrics.accuracy_score(real_ys, predicted_ys)
-    macro_precision = metrics.precision_score(real_ys, predicted_ys,
-                                              labels=classes_index, average="macro")
-    macro_recall = metrics.recall_score(real_ys, predicted_ys,
-                                        labels=classes_index, average="macro")
     macro_f1 = metrics.f1_score(real_ys, predicted_ys,
-                                labels=classes_index, average="macro")
+                                labels=list(src.util.global_vars.__CLASSES_TO_NUM_DIC__.values()), average="macro")
     micro_f1 = metrics.f1_score(real_ys, predicted_ys,
-                                labels=classes_index, average="micro")
+                                labels=list(src.util.global_vars.__CLASSES_TO_NUM_DIC__.values()), average="micro")
 
-    print("*** Results " + model_name + " ***")
-    print("Accuracy: " + str(accuracy))
-    print("Macro-Precision: " + str(macro_precision))
-    print("Macro-Recall: " + str(macro_recall))
-    print("Macro-F1: " + str(macro_f1))
-    print("Micro-F1: " + str(micro_f1))
-
-    df = pd.DataFrame(OrderedDict({'accuracy': accuracy,
-                                   'macro_precision': macro_precision,
-                                   'macro_recall': macro_recall,
-                                   'macro_f1': macro_f1,
-                                   'micro_f1': micro_f1}), index=[0])
-
+    df = pd.DataFrame(OrderedDict({'macro_f1': macro_f1, 'micro_f1': micro_f1}), index=[0])
     df.rename(index={0: model_name}, inplace=True)
+    print(df)
 
     return df
 
 
-def kaggle_file(ids, ys, model, num_to_classes_dic):
+def kaggle_file(ids, ys, model):
     """
     src.util.utilities.kaggle_file, a function used to prepare the submission file.
 
     :param ids: instances ID's
     :param ys: the predicted labels
     :param model: the model name
-    :param num_to_classes_dic: a dictionary of index: "real class label" pairs.
     :return:
     """
-    real_classes = [num_to_classes_dic[y] for y in ys]
+    real_classes = [src.util.global_vars.__NUM_TO_CLASSES_DIC__[y] for y in ys]
     df = pd.DataFrame(OrderedDict({'Id': ids, 'Expected': real_classes}))
     file_name = '../submissions/' + model + '-' + str(int(time.time())) + '.csv'
     df.to_csv(file_name, index=False)
@@ -224,25 +214,25 @@ def plot_graphic(history, name):
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
     pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig("../plots" + name + '-' + str(int(time.time())) + '.png')
+    pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.png')
 
 
 def remove_emojis(tweet):
     # :), : ), :-), (:, ( :, (-:, :'), :D, : D, :-D, xD, x-D, XD, X-D, xd
-    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' EMO_POS ', tweet)
-    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(:\s?\)|:-\)|\(\s?:|\(-:|:\'\))', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
+    tweet = re.sub(r'(:\s?D|:-D|x-?D|X-?D|xd)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # jajaja, lol
-    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(a*ja+j[ja]*|o?l+o+l+[ol]*)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # hahaha
-    tweet = re.sub(r'(a*ha+h[ha])', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(a*ha+h[ha])', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # <3, :*
-    tweet = re.sub(r'(<3|:\*)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(<3|:\*)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # ;-), ;), ;-D, ;D, (;,  (-;, ^^
-    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' EMO_POS ', tweet)
+    tweet = re.sub(r'(;-?\)|;-?D|\(-?;|\^\^)', ' POSITIVE POSITIVE POSITIVE POSITIVE ', tweet)
     # :-(, : (, :(, ):, )-:
-    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' EMO_NEG ', tweet)
+    tweet = re.sub(r'(:\s?\(|:-\(|\)\s?:|\)-:)', ' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ', tweet)
     # :,(, :'(, :"(
-    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' EMO_NEG ', tweet)
+    tweet = re.sub(r'(:,\(|:\'\(|:"\()', ' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ', tweet)
     return tweet
 
 
@@ -289,3 +279,57 @@ def preprocess_tweets(tweets):
         preprocessed_tweets.append(tweet_words)
 
     return preprocessed_tweets
+
+
+def micro_f1(y_true, y_pred):
+    tp = keras.backend.sum(keras.backend.cast(y_true * y_pred, tensorflow.float32), axis=0)
+    fp = keras.backend.sum(keras.backend.cast((1 - y_true) * y_pred, tensorflow.float32), axis=0)
+    fn = keras.backend.sum(keras.backend.cast(y_true * (1 - y_pred), tensorflow.float32), axis=0)
+    precision = tp / (tp + fp + keras.backend.epsilon())
+    recall = tp / (tp + fn + keras.backend.epsilon())
+    f1 = 2 * precision * recall / (precision + recall + keras.backend.epsilon())
+    f1 = tensorflow.where(tensorflow.is_nan(f1), tensorflow.zeros_like(f1), f1)
+    micro_f1 = tensorflow.reduce_mean(f1)
+    return micro_f1
+
+
+def micro_f1_loss(y_true, y_pred):
+    return 1 - micro_f1(y_true, y_pred)
+
+
+def own_set_seed():
+    # The below is necessary for starting Numpy generated random numbers in a well-defined initial state.
+    np.random.seed(0)
+
+    # The below is necessary for starting core Python generated random numbers in a well-defined state.
+    random.seed(0)
+
+    # Force TensorFlow to use single thread. Multiple threads are a potential source of non-reproducible results.
+    # For further details, see: https://stackoverflow.com/questions/42022950/
+    session_conf = tensorflow.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+
+    # The below tf.set_random_seed() will make random number generation in the TensorFlow backend have a well-defined
+    # initial state. For further details, see: https://www.tensorflow.org/api_docs/python/tf/set_random_seed
+    tensorflow.set_random_seed(0)
+    sess = tensorflow.Session(graph=tensorflow.get_default_graph(), config=session_conf)
+    keras.backend.set_session(sess)
+
+
+# Returns a list with FOLDS_CV rows
+# Each row has a 4-tuple (train_xs, train_ys, validations_xs, validation_ys)
+# Each row represents a fold
+def k_fold_cross_validation(data_xs, data_ys):
+    # The folds are made by preserving the percentage of samples for each class.
+    data = []
+    skf = StratifiedKFold(FOLDS_CV, False, 1)
+
+    # We need convert the data to numpy.array for indexing by other numpy.array
+    data_xs = np.array(data_xs)
+    data_ys = np.array(data_ys)
+    for train_index, val_index in skf.split(data_xs, data_ys):
+        train_xs, validation_xs = data_xs[train_index], data_xs[val_index]
+        train_ys, validation_ys = data_ys[train_index], data_ys[val_index]
+
+        data.append((train_xs, train_ys, validation_xs, validation_ys))
+
+    return data

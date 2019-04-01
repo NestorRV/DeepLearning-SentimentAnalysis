@@ -1,0 +1,3 @@
+__CLASSES__ = []
+__NUM_TO_CLASSES_DIC__ = {}
+__CLASSES_TO_NUM_DIC__ = {}

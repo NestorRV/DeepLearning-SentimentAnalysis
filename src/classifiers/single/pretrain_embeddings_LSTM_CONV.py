@@ -1,5 +1,5 @@
-import numpy as np
-from keras.layers.core import Dense
+from keras.layers import MaxPooling1D, Conv1D, AveragePooling1D
+from keras.layers.core import Dense, Dropout
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
@@ -9,11 +9,8 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def adadelta_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1, num_classes=4):
-    """Classification with RNN and embeddings (no pre-trained)
-    """
-
-    np.random.seed(seed=1)
+def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
+    own_set_seed()
 
     # Offset = 2; Padding and OOV.
     word_embeddings, word_emb_indexes = read_embeddings(embeddings_path, 2)
@@ -38,35 +35,41 @@ def adadelta_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epo
         own_corpus_test_index_append(doc_test_index)
 
     nn_model = Sequential()
-    nn_model.add(Embedding(len(word_embeddings), len(word_embeddings[0]),
-                           weights=[np_array(word_embeddings)],
+    nn_model.add(Embedding(len(word_embeddings), len(word_embeddings[0]), weights=[np_array(word_embeddings)],
                            input_length=max_len_input, trainable=False))
+
     nn_model.add(LSTM(64, return_sequences=True))
-    nn_model.add(Dense(32, activation='tanh'))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(MaxPooling1D())
+
+    nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(AveragePooling1D())
+
+    nn_model.add(Dense(128, activation='relu'))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(AveragePooling1D())
+
     nn_model.add(Flatten())
-    nn_model.add(Dense(num_classes, activation='softmax'))
-    nn_model.compile(optimizer="adadelta",
-                     loss="sparse_categorical_crossentropy",
-                     metrics=["accuracy"])
+    nn_model.add(Dense(len(src.util.global_vars.__CLASSES__), activation='softmax'))
+
+    nn_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
 
     if verbose == 1:
         print(nn_model.summary())
 
-    train_features_pad = sequence.pad_sequences(corpus_train_index, maxlen=max_len_input,
-                                                padding="post", truncating="post",
-                                                dtype=type(corpus_train_index[0][0]))
+    train_features_pad = sequence.pad_sequences(corpus_train_index, maxlen=max_len_input, padding="post",
+                                                truncating="post", dtype=type(corpus_train_index[0][0]))
     np_labels_train = np.array(train_ys)
-    test_features_pad = sequence.pad_sequences(corpus_test_index, maxlen=max_len_input,
-                                               padding="post", truncating="post",
-                                               dtype=type(corpus_test_index[0][0]))
+    test_features_pad = sequence.pad_sequences(corpus_test_index, maxlen=max_len_input, padding="post",
+                                               truncating="post", dtype=type(corpus_test_index[0][0]))
 
     if test_ys is None:
         nn_model.fit(train_features_pad, np_labels_train, batch_size=32, epochs=epochs, verbose=verbose)
     else:
-        history = nn_model.fit(train_features_pad, np_labels_train,
-                               validation_data=(test_features_pad, test_ys),
+        history = nn_model.fit(train_features_pad, np_labels_train, validation_data=(test_features_pad, test_ys),
                                batch_size=32, epochs=epochs, verbose=verbose)
-        plot_graphic(history, 'adadelta_rnn')
+        plot_graphic(history, 'pretrain_embeddings_LSTM_CONV')
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
     return y_labels

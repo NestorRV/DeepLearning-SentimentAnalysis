@@ -1,4 +1,3 @@
-import numpy as np
 from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.layers.recurrent import LSTM
@@ -9,10 +8,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from src.util.utilities import *
 
 
-def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=4):
+def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1):
     """Classification using a RNN with tfidf as features
     """
-    np.random.seed(seed=1)
+
+    own_set_seed()
+
     # Representation
     tfidf_parser = TfidfVectorizer(tokenizer=tokenize, lowercase=False, analyzer='word')
 
@@ -38,10 +39,8 @@ def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=
     nn_model.add(LSTM(64, input_shape=(max_len_input, 1), return_sequences=True))
     nn_model.add(Dense(32, activation='tanh'))
     nn_model.add(Flatten())
-    nn_model.add(Dense(num_classes, activation='softmax'))
-    nn_model.compile(optimizer="adam",
-                     loss="sparse_categorical_crossentropy",
-                     metrics=["accuracy"])
+    nn_model.add(Dense(len(src.util.global_vars.__CLASSES__), activation='softmax'))
+    nn_model.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
 
     if verbose == 1:
         print(nn_model.summary())
@@ -62,8 +61,8 @@ def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1, num_classes=
         nn_model.fit(train_features_tfidf_pad, np_labels_train, batch_size=32, epochs=10, verbose=verbose)
     else:
         history = nn_model.fit(train_features_tfidf_pad, np_labels_train,
-                               validation_data=(test_features_tfidf_pad_expanded, test_ys),
-                               batch_size=32, epochs=10, verbose=verbose)
+                               validation_data=(test_features_tfidf_pad_expanded, test_ys), batch_size=32, epochs=10,
+                               verbose=verbose)
         plot_graphic(history, 'tfidf_rnn')
 
     test_features_tfidf_pad = np.expand_dims(test_features_tfidf_pad, axis=-1)
