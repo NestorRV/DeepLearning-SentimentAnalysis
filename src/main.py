@@ -15,6 +15,7 @@ from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddin
 from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
 from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
 from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
+from src.classifiers.single.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_embeddings_rnn
 from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.single.tfidf_rnn import tfidf_rnn
 from src.util.utilities import *
@@ -129,8 +130,8 @@ def main():
                                                                                      validation_ys)
         final_results = pd.concat([sigmoid_pretrain_embeddings_rnn_results])
 
-        test_ys_sigmoid_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
-                                                                             test_xs, verbose=0)
+        test_ys_sigmoid_pretrain_embeddings_rnn, _ = sigmoid_pretrain_embeddings_rnn(embeddings_file_path, train_xs,
+                                                                                     train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain-embeddings-rnn')
 
     if should_compute["epochs100_pretrain_embeddings_rnn"]:
