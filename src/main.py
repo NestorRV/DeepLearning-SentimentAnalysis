@@ -60,7 +60,7 @@ def main():
     """ Modelling, Evaluation and Submission """
 
     should_compute = {
-        "tfidf_rnn": False,
+        "tfidf_rnn": True,
         "calculated_embeddings_rnn": False,
         "pretrain_embeddings_rnn": False,
         "sigmoid_pretrain_embeddings_rnn": False,
@@ -223,43 +223,44 @@ def main():
     """ Submissions """
 
     if should_submit["tfidf_rnn"]:
-        test_ys_tfidf_rnn = tfidf_rnn(train_xs, train_ys, test_xs, verbose=0)
+        test_ys_tfidf_rnn, _ = tfidf_rnn(train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_tfidf_rnn, 'rnn-tfidf')
 
     if should_submit["calculated_embeddings_rnn"]:
-        test_ys_calculated_embeddings_rnn = calculated_embeddings_rnn(train_xs, train_ys, test_xs, verbose=0)
+        test_ys_calculated_embeddings_rnn, _ = calculated_embeddings_rnn(train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_calculated_embeddings_rnn, 'calculated_embeddings_rnn')
 
     if should_submit["pretrain_embeddings_rnn"]:
-        test_ys_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
-                                                                  verbose=0)
+        test_ys_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
+                                                                     verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain-embeddings-rnn')
 
     if should_submit["sigmoid_pretrain_embeddings_rnn"]:
-        test_ys_sigmoid_pretrain_embeddings_rnn = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
-                                                                          test_xs, verbose=0)
+        test_ys_sigmoid_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
+                                                                             test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain-embeddings-rnn')
 
     if should_submit["stacked_lstm_rnn"]:
-        test_ys_stacked_lstm_rnn = stacked_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
+        test_ys_stacked_lstm_rnn, _ = stacked_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_stacked_lstm_rnn, 'stacked_lstm_rnn')
 
     if should_submit["adam_lr_0005_rnn"]:
-        test_ys_adam_lr_0005_rnn = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
-                                                           learning_rate=0.0005, verbose=0)
+        test_ys_adam_lr_0005_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
+                                                              learning_rate=0.0005, verbose=0)
         kaggle_file(test_ids, test_ys_adam_lr_0005_rnn, 'adam_lr_0005')
 
     if should_submit["pretrain_embeddings_LSTM_CONV"]:
-        test_ys_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs, train_ys,
-                                                                              test_xs, verbose=0)
+        test_ys_pretrain_embeddings_LSTM_CONV, _ = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs,
+                                                                                 train_ys,
+                                                                                 test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
 
     if should_submit["preprocess_pretrain_embeddings_LSTM_CONV"]:
-        test_ys_preprodess_pretrain_embeddings_LSTM_CONV = pretrain_embeddings_LSTM_CONV(embeddings_file_path,
-                                                                                         preprocessed_train_xs,
-                                                                                         train_ys,
-                                                                                         preprocessed_test_xs,
-                                                                                         verbose=0)
+        test_ys_preprodess_pretrain_embeddings_LSTM_CONV, _ = pretrain_embeddings_LSTM_CONV(embeddings_file_path,
+                                                                                            preprocessed_train_xs,
+                                                                                            train_ys,
+                                                                                            preprocessed_test_xs,
+                                                                                            verbose=0)
         kaggle_file(test_ids, test_ys_preprodess_pretrain_embeddings_LSTM_CONV,
                     'preprocess_pretrain_embeddings_LSTM_CONV')
 
@@ -273,19 +274,19 @@ def main():
                     'preprocess_calculated_embeddings_LSTM_CONV')
 
     if should_submit["epochs50_preprocess_calculated_embeddings_LSTM_CONV"]:
-        test_ys_epochs50_preprodess_calculated_embeddings_LSTM_CONV = calculated_embeddings_LSTM_CONV(
+        test_ys_epochs50_preprodess_calculated_embeddings_LSTM_CONV, _ = calculated_embeddings_LSTM_CONV(
             embeddings_file_path, preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0, epochs=50)
         kaggle_file(test_ids, test_ys_epochs50_preprodess_calculated_embeddings_LSTM_CONV,
                     'epochs50_preprocess_calculated_embeddings_LSTM_CONV')
 
     if should_submit["big_LSTM_CONV_rnn"]:
-        test_ys_big_LSTM_CONV_rnn = big_LSTM_CONV_rnn(embeddings_file_path, preprocessed_train_xs, train_ys, test_xs,
-                                                      verbose=0)
+        test_ys_big_LSTM_CONV_rnn, _ = big_LSTM_CONV_rnn(embeddings_file_path, preprocessed_train_xs, train_ys, test_xs,
+                                                         verbose=0)
         kaggle_file(test_ids, test_ys_big_LSTM_CONV_rnn, 'big_LSTM_CONV_rnn')
 
     if should_submit["dropout_LSTM_CONV_rnn"]:
-        test_ys_dropout_LSTM_CONV_rnn = dropout_LSMT_CONV_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
-                                                              verbose=0)
+        test_ys_dropout_LSTM_CONV_rnn, _ = dropout_LSMT_CONV_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
+                                                                 verbose=0)
         kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
 

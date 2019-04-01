@@ -5,6 +5,8 @@ import xml.etree.ElementTree
 from collections import OrderedDict
 
 import keras
+import matplotlib
+import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
 import tensorflow
@@ -214,14 +216,45 @@ def get_ys(tweets):
     return [t.y for t in tweets]
 
 
-def plot_graphic(history, name):
-    pyplot.plot(history.history['loss'])
-    pyplot.plot(history.history['val_loss'])
+def plot_graphic(histories, name):
+    matplotlib.style.use('seaborn')
+    colors = ['#00796b', '#43a047', '#1de9b6', '#00e676', '#76ff03']
+
+    losses = []
+    val_losses = []
+
+    for i in range(5):
+        losses.append(histories[i].history['loss'])
+        val_losses.append(histories[i].history['val_loss'])
+
+        pyplot.plot(histories[i].history['loss'], color=colors[i], linestyle='--')
+        pyplot.plot(histories[i].history['val_loss'], color=colors[i], linestyle=':')
+
+    pyplot.plot(np.mean(np.array(losses), axis=0), color='#d81b60', linestyle='--')
+    pyplot.plot(np.mean(np.array(val_losses), axis=0), color='#d81b60', linestyle=':')
+
+    train_loss = mlines.Line2D([], [], color='black', linestyle='--', marker='None', markersize=7, label='train loss')
+    val_loss = mlines.Line2D([], [], color='black', linestyle=':', marker='None', markersize=7, label='val loss')
+
+    train_loss_mean = mlines.Line2D([], [], color='#d81b60', linestyle='--', marker='None', markersize=7,
+                                    label='train loss mean')
+    val_loss_mean = mlines.Line2D([], [], color='#d81b60', linestyle=':', marker='None', markersize=7,
+                                  label='val loss mean')
+
+    green_1 = mlines.Line2D([], [], color='#00796b', marker='s', linestyle='None', markersize=7, label='partition 1')
+    green_2 = mlines.Line2D([], [], color='#43a047', marker='s', linestyle='None', markersize=7, label='partition 2')
+    green_3 = mlines.Line2D([], [], color='#1de9b6', marker='s', linestyle='None', markersize=7, label='partition 3')
+    green_4 = mlines.Line2D([], [], color='#00e676', marker='s', linestyle='None', markersize=7, label='partition 4')
+    green_5 = mlines.Line2D([], [], color='#76ff03', marker='s', linestyle='None', markersize=7, label='partition 5')
+
     pyplot.title(name)
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
-    pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.png')
+
+    pyplot.legend(
+        handles=[train_loss, val_loss, train_loss_mean, val_loss_mean, green_1, green_2, green_3, green_4, green_5],
+        loc='upper right')
+    pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.eps', dpi=1000, format='eps')
 
 
 def remove_emojis(tweet):
