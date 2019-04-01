@@ -57,15 +57,15 @@ def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1):
                                                      dtype=test_sparse_matrix_features_tfidf.dtype)
     test_features_tfidf_pad_expanded = np.expand_dims(test_features_tfidf_pad, axis=-1)
 
+    history = None
     if test_ys is None:
         nn_model.fit(train_features_tfidf_pad, np_labels_train, batch_size=32, epochs=10, verbose=verbose)
     else:
         history = nn_model.fit(train_features_tfidf_pad, np_labels_train,
                                validation_data=(test_features_tfidf_pad_expanded, test_ys), batch_size=32, epochs=10,
                                verbose=verbose)
-        plot_graphic(history, 'tfidf_rnn')
 
     test_features_tfidf_pad = np.expand_dims(test_features_tfidf_pad, axis=-1)
     y_labels = nn_model.predict_classes(test_features_tfidf_pad, batch_size=32, verbose=verbose)
 
-    return y_labels
+    return y_labels, history

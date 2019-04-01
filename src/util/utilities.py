@@ -5,12 +5,15 @@ import xml.etree.ElementTree
 from collections import OrderedDict
 
 import keras
+import matplotlib
+import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
 import tensorflow
 from matplotlib import pyplot
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
 from nltk.tokenize.casual import TweetTokenizer
 from num2words import num2words
 from numpy import array as np_array
@@ -25,6 +28,12 @@ EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
 FOLDS_CV = 5
+BAD_WORDS = ["cabron", "cabrona", "mierda", "cojones", "joder", "tonto", "puto", "puta", "gilipollas", "hostia",
+             "ostia", "follen", "follar", "coño", "cago", "cagar", "tonto", "tonta", "idiota", "estupido", "feo", "fea",
+             "gordo", "gorda", "maldito", "maldita", "pudrete", "zorra", "imbecil", "baboso", "babosa", "besugo",
+             "besufa", "brasas", "capullo", "capulla", "cenutrio", "cenutria", "ceporro", "ceporra", "cretino",
+             "cretina", "gañan", "lameculos", "lerdo", "lerda", "palurdo", "palurda", "panoli", "pagafantas",
+             "tocapelotas"]
 
 
 def tokenize(text):
@@ -207,14 +216,45 @@ def get_ys(tweets):
     return [t.y for t in tweets]
 
 
-def plot_graphic(history, name):
-    pyplot.plot(history.history['loss'])
-    pyplot.plot(history.history['val_loss'])
+def plot_graphic(histories, name):
+    matplotlib.style.use('seaborn')
+    colors = ['#00796b', '#43a047', '#1de9b6', '#00e676', '#76ff03']
+
+    losses = []
+    val_losses = []
+
+    for i in range(5):
+        losses.append(histories[i].history['loss'])
+        val_losses.append(histories[i].history['val_loss'])
+
+        pyplot.plot(histories[i].history['loss'], color=colors[i], linestyle='--')
+        pyplot.plot(histories[i].history['val_loss'], color=colors[i], linestyle=':')
+
+    pyplot.plot(np.mean(np.array(losses), axis=0), color='#d81b60', linestyle='--')
+    pyplot.plot(np.mean(np.array(val_losses), axis=0), color='#d81b60', linestyle=':')
+
+    train_loss = mlines.Line2D([], [], color='black', linestyle='--', marker='None', markersize=7, label='train loss')
+    val_loss = mlines.Line2D([], [], color='black', linestyle=':', marker='None', markersize=7, label='val loss')
+
+    train_loss_mean = mlines.Line2D([], [], color='#d81b60', linestyle='--', marker='None', markersize=7,
+                                    label='train loss mean')
+    val_loss_mean = mlines.Line2D([], [], color='#d81b60', linestyle=':', marker='None', markersize=7,
+                                  label='val loss mean')
+
+    green_1 = mlines.Line2D([], [], color='#00796b', marker='s', linestyle='None', markersize=7, label='partition 1')
+    green_2 = mlines.Line2D([], [], color='#43a047', marker='s', linestyle='None', markersize=7, label='partition 2')
+    green_3 = mlines.Line2D([], [], color='#1de9b6', marker='s', linestyle='None', markersize=7, label='partition 3')
+    green_4 = mlines.Line2D([], [], color='#00e676', marker='s', linestyle='None', markersize=7, label='partition 4')
+    green_5 = mlines.Line2D([], [], color='#76ff03', marker='s', linestyle='None', markersize=7, label='partition 5')
+
     pyplot.title(name)
     pyplot.ylabel('Loss')
     pyplot.xlabel('Epoch')
-    pyplot.legend(['Train', 'Validation'], loc='upper right')
-    pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.png')
+
+    pyplot.legend(
+        handles=[train_loss, val_loss, train_loss_mean, val_loss_mean, green_1, green_2, green_3, green_4, green_5],
+        loc='upper right')
+    pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.eps', dpi=1000, format='eps')
 
 
 def remove_emojis(tweet):
@@ -236,7 +276,7 @@ def remove_emojis(tweet):
     return tweet
 
 
-def preprocess_tweets(tweets):
+def preprocess_tweets(tweets, stemming=False):
     # download('stopwords')
     # download('punkt')
     stop_words = stopwords.words('spanish')
@@ -244,6 +284,9 @@ def preprocess_tweets(tweets):
     preprocessed_tweets = []
     # lower case and remove accent marks
     lowercase_tweets = [unidecode(tweet.lower()) for tweet in tweets]
+
+    # stemming words
+    stemmer = SnowballStemmer('spanish')
 
     for tweet in lowercase_tweets:
         # remove punctuation
@@ -255,8 +298,8 @@ def preprocess_tweets(tweets):
 
         # Replaces URLs with the word URL
         tweet = re.sub(r'((www\.[\S]+)|(https?://[\S]+))', ' URL ', tweet)
-        # Replace @handle with the word USER_MENTION
-        tweet = re.sub(r'@[\S]+', 'USER_MENTION', tweet)
+        # Remove @handle
+        tweet = re.sub(r'@[\S]+', '', tweet)
         # Replaces #hashtag with hashtag
         tweet = re.sub(r'#(\S+)', r' \1 ', tweet)
         # Remove RT (retweet)
@@ -265,14 +308,22 @@ def preprocess_tweets(tweets):
         tweet = re.sub(r'\.{2,}', ' ', tweet)
         # Strip space, " and ' from tweet
         tweet = tweet.strip(' "\'')
-        # Replace emojis with either EMO_POS or EMO_NEG
+        # Replace emojis with either POSTIIVE or NEGATIVE X4
         tweet = remove_emojis(tweet)
         # Replace multiple spaces with a single space
         tweet = re.sub(r'\s+', ' ', tweet)
 
         tweet_words = word_tokenize(tweet)
+
+        if stemming:
+            tweet_words = [stemmer.stem(word) for word in tweet_words]
+
+        # Replace bad words by NEGATIVE x4
+        tweet_words = [' NEGATIVE NEGATIVE NEGATIVE NEGATIVE ' if word in BAD_WORDS else word for word in tweet_words]
+
         # number to words
-        tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in tweet_words]
+        tweet_words = [num2words(float(word), lang='es') if word.isnumeric() else word for word in
+                       tweet_words]
         # remove stopwords
         tweet_words = ' '.join(word for word in tweet_words if word not in stop_words)
 

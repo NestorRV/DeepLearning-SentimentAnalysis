@@ -1,4 +1,4 @@
-from keras.layers import MaxPooling1D, Conv1D, AveragePooling1D
+from keras.layers import Conv1D
 from keras.layers.core import Dense, Dropout
 from keras.layers.core import Flatten
 from keras.layers.embeddings import Embedding
@@ -9,7 +9,7 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
+def big_LSTM_CONV_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
     own_set_seed()
 
     # Offset = 2; Padding and OOV.
@@ -40,15 +40,24 @@ def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, 
 
     nn_model.add(LSTM(64, return_sequences=True))
     nn_model.add(Dropout(0.5))
-    nn_model.add(MaxPooling1D())
 
     nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
     nn_model.add(Dropout(0.5))
-    nn_model.add(AveragePooling1D())
+
+    nn_model.add(LSTM(64, return_sequences=True))
+    nn_model.add(Dropout(0.5))
+
+    nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
+    nn_model.add(Dropout(0.5))
+
+    nn_model.add(LSTM(64, return_sequences=True))
+    nn_model.add(Dropout(0.5))
+
+    nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
+    nn_model.add(Dropout(0.5))
 
     nn_model.add(Dense(128, activation='relu'))
     nn_model.add(Dropout(0.5))
-    nn_model.add(AveragePooling1D())
 
     nn_model.add(Flatten())
     nn_model.add(Dense(len(src.util.global_vars.__CLASSES__), activation='softmax'))
