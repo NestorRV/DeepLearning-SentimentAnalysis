@@ -2,10 +2,8 @@ from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddin
 from src.util.utilities import *
 
 
-def calculated_embeddings_rnn_cv(train_xs, train_ys, test_xs, test_ys=None, verbose=1):
+def calculated_embeddings_rnn_cv(model_name, train_xs, train_ys, test_xs, test_ys=None, verbose=1):
     own_set_seed()
-
-    model_name = "calculated_embeddings_rnn"
 
     new_train_xs = np.concatenate((np.array(train_xs), np.array(test_xs)))
     new_train_ys = np.concatenate((np.array(train_ys), np.array(test_ys)))

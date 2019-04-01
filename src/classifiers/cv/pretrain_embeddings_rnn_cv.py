@@ -3,11 +3,9 @@ from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_r
 from src.util.utilities import *
 
 
-def pretrain_embeddings_rnn_cv(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25,
+def pretrain_embeddings_rnn_cv(model_name, embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25,
                                learning_rate=0.001, verbose=1):
     own_set_seed()
-
-    model_name = "pretrain_embeddings_rnn"
 
     new_train_xs = np.concatenate((np.array(train_xs), np.array(test_xs)))
     new_train_ys = np.concatenate((np.array(train_ys), np.array(test_ys)))

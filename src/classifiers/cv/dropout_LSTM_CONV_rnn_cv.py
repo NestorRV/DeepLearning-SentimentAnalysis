@@ -2,10 +2,9 @@ from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
 from src.util.utilities import *
 
 
-def dropout_LSMT_CONV_rnn_cv(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
+def dropout_LSMT_CONV_rnn_cv(model_name, embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25,
+                             verbose=1):
     own_set_seed()
-
-    model_name = "dropout_LSMT_CONV_rnn"
 
     new_train_xs = np.concatenate((np.array(train_xs), np.array(test_xs)))
     new_train_ys = np.concatenate((np.array(train_ys), np.array(test_ys)))
