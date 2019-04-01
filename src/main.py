@@ -60,7 +60,7 @@ def main():
     """ Modelling, Evaluation and Submission """
 
     should_compute = {
-        "tfidf_rnn": True,
+        "tfidf_rnn": False,
         "calculated_embeddings_rnn": False,
         "pretrain_embeddings_rnn": False,
         "sigmoid_pretrain_embeddings_rnn": False,
