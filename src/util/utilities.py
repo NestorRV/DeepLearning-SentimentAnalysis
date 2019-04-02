@@ -20,6 +20,7 @@ from numpy import array as np_array
 from sklearn import metrics
 from sklearn.model_selection import StratifiedKFold
 from unidecode import unidecode
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 import src.util.global_vars
 
@@ -385,3 +386,31 @@ def k_fold_cross_validation(data_xs, data_ys):
         data.append((train_xs, train_ys, validation_xs, validation_ys))
 
     return data
+
+
+def group_by(data, preprocess):
+    results = ["", "", "", ""]
+    tweets_list = []
+    for tweet in data:
+        tweets_list.append(tweet.x)
+
+    if preprocess:
+        tweets_list = preprocess_tweets(tweets_list)
+
+    for i, tweet in enumerate(tweets_list):
+        results[data[i].y] += tweet + " "
+
+    return results
+
+
+def plot_wordcloud(tweets, dataset, preprocess=False):
+    tweets_text = group_by(tweets, preprocess)
+
+    for i, text_class_i in enumerate(tweets_text):
+        wordcloud = WordCloud(background_color="rgba(255, 255, 255, 0)", mode="RGBA").generate(text_class_i)
+        pyplot.imshow(wordcloud, interpolation='bilinear')
+        pyplot.title("Data: " + dataset + " - Class: " + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i])
+        pyplot.axis("off")
+        pyplot.savefig("../plots/wordcloud_" + dataset + "_" + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i] +
+                       '-' + str(int(time.time())) + '.eps', dpi=1000, format='eps')
+        pyplot.clf()

@@ -49,6 +49,13 @@ def main():
 
     test_tweets = [Tweet(t.find('tweetid').text, t.find('content').text) for t in test_raw_tweets]
 
+    """ Wordclouds """
+
+    plot_wordcloud(train_tweets, "train_preprocessed", True)
+    plot_wordcloud(train_tweets, "train")
+    plot_wordcloud(validation_tweets, "validation_preprocessed", True)
+    plot_wordcloud(validation_tweets, "validation")
+
     train_xs = get_xs(train_tweets)
     train_ys = get_ys(train_tweets)
 
