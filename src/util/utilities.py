@@ -20,7 +20,7 @@ from numpy import array as np_array
 from sklearn import metrics
 from sklearn.model_selection import StratifiedKFold
 from unidecode import unidecode
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+from wordcloud import WordCloud
 
 import src.util.global_vars
 
