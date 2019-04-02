@@ -103,7 +103,7 @@ def main():
         final_results_list.append(tfidf_rnn_results)
 
         test_ys_tfidf_rnn, _ = tfidf_rnn(train_xs, train_ys, test_xs, verbose=0)
-        kaggle_file(test_ids, test_ys_tfidf_rnn, 'rnn-tfidf')
+        kaggle_file(test_ids, test_ys_tfidf_rnn, 'tfidf-rnn')
 
     if should_compute["calculated_embeddings_rnn"]:
         calculated_embeddings_rnn_results = calculated_embeddings_rnn_cv('calculated_embeddings_rnn', train_xs,
