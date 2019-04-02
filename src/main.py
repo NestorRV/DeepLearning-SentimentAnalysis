@@ -49,7 +49,7 @@ def main():
 
     test_tweets = [Tweet(t.find('tweetid').text, t.find('content').text) for t in test_raw_tweets]
 
-    """ Wordclouds """
+    """ Wordcloud """
 
     plot_wordcloud(train_tweets, "train_preprocessed", True)
     plot_wordcloud(train_tweets, "train")
