@@ -121,7 +121,7 @@ def main():
 
         test_ys_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
                                                                      verbose=0)
-        kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain-embeddings-rnn')
+        kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain_embeddings_rnn')
 
     if should_compute["sigmoid_pretrain_embeddings_rnn"]:
         sigmoid_pretrain_embeddings_rnn_results = sigmoid_pretrain_embeddings_rnn_cv('sigmoid_pretrain_embeddings_rnn',
@@ -132,7 +132,7 @@ def main():
 
         test_ys_sigmoid_pretrain_embeddings_rnn, _ = sigmoid_pretrain_embeddings_rnn(embeddings_file_path, train_xs,
                                                                                      train_ys, test_xs, verbose=0)
-        kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain-embeddings-rnn')
+        kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain_embeddings_rnn')
 
     if should_compute["epochs100_pretrain_embeddings_rnn"]:
         epochs100_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv('epochs100_pretrain_embeddings_rnn',
