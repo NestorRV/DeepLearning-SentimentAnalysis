@@ -255,6 +255,7 @@ def plot_graphic(histories, name):
         handles=[train_loss, val_loss, train_loss_mean, val_loss_mean, green_1, green_2, green_3, green_4, green_5],
         loc='upper right')
     pyplot.savefig("../plots/" + name + '-' + str(int(time.time())) + '.eps', dpi=1000, format='eps')
+    pyplot.clf()
 
 
 def remove_emojis(tweet):
