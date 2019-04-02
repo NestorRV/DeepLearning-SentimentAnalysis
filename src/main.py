@@ -253,7 +253,7 @@ def main():
         final_results = pd.concat([epochs50_preprocess_calculated_embeddings_LSTM_CONV_results])
 
         test_ys_epochs50_preprocess_calculated_embeddings_LSTM_CONV, _ = calculated_embeddings_LSTM_CONV(
-            embeddings_file_path, preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0, epochs=50)
+            preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0, epochs=50)
         kaggle_file(test_ids, test_ys_epochs50_preprocess_calculated_embeddings_LSTM_CONV,
                     'epochs50_preprocess_calculated_embeddings_LSTM_CONV')
 
