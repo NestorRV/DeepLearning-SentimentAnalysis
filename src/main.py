@@ -236,10 +236,10 @@ def main():
             stemming_preprocessed_validation_xs, validation_ys)
         final_results = pd.concat([preprocess_calculated_embeddings_LSTM_CONV_results])
 
-        test_ys_preprocess_calculated_embeddings_LSTM_CONV = calculated_embeddings_LSTM_CONV(preprocessed_train_xs,
-                                                                                             train_ys,
-                                                                                             preprocessed_test_xs,
-                                                                                             verbose=0)
+        test_ys_preprocess_calculated_embeddings_LSTM_CONV, _ = calculated_embeddings_LSTM_CONV(preprocessed_train_xs,
+                                                                                                train_ys,
+                                                                                                preprocessed_test_xs,
+                                                                                                verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_calculated_embeddings_LSTM_CONV,
                     'preprocess_calculated_embeddings_LSTM_CONV')
 
