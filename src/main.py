@@ -110,7 +110,7 @@ def main():
         final_results_list.append(tfidf_rnn_results)
 
         test_ys_tfidf_rnn, _ = tfidf_rnn(train_xs, train_ys, test_xs, verbose=0)
-        kaggle_file(test_ids, test_ys_tfidf_rnn, 'rnn-tfidf')
+        kaggle_file(test_ids, test_ys_tfidf_rnn, 'tfidf-rnn')
 
     if should_compute["calculated_embeddings_rnn"]:
         calculated_embeddings_rnn_results = calculated_embeddings_rnn_cv('calculated_embeddings_rnn', train_xs,
@@ -128,7 +128,7 @@ def main():
 
         test_ys_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
                                                                      verbose=0)
-        kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain-embeddings-rnn')
+        kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain_embeddings_rnn')
 
     if should_compute["sigmoid_pretrain_embeddings_rnn"]:
         sigmoid_pretrain_embeddings_rnn_results = sigmoid_pretrain_embeddings_rnn_cv('sigmoid_pretrain_embeddings_rnn',
@@ -139,7 +139,7 @@ def main():
 
         test_ys_sigmoid_pretrain_embeddings_rnn, _ = sigmoid_pretrain_embeddings_rnn(embeddings_file_path, train_xs,
                                                                                      train_ys, test_xs, verbose=0)
-        kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain-embeddings-rnn')
+        kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain_embeddings_rnn')
 
     if should_compute["epochs100_pretrain_embeddings_rnn"]:
         epochs100_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv('epochs100_pretrain_embeddings_rnn',
@@ -149,8 +149,7 @@ def main():
 
         test_ys_epochs100_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
                                                                                test_xs, epochs=100)
-        kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn,
-                    'sigmoid-epochs100_pretrain_embeddings_rnn-embeddings-rnn')
+        kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn, 'epochs100_pretrain_embeddings_rnn')
 
     if should_compute["stacked_lstm_rnn"]:
         stacked_lstm_rnn_results = stacked_lstm_rnn_cv('stacked_lstm_rnn', embeddings_file_path, train_xs, train_ys,
