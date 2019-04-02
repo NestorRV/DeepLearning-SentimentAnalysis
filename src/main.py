@@ -142,8 +142,7 @@ def main():
 
         test_ys_epochs100_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
                                                                                test_xs, epochs=100)
-        kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn,
-                    'sigmoid-epochs100_pretrain_embeddings_rnn-embeddings-rnn')
+        kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn, 'epochs100_pretrain_embeddings_rnn')
 
     if should_compute["stacked_lstm_rnn"]:
         stacked_lstm_rnn_results = stacked_lstm_rnn_cv('stacked_lstm_rnn', embeddings_file_path, train_xs, train_ys,
