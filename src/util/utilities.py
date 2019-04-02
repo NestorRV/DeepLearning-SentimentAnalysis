@@ -390,7 +390,6 @@ def k_fold_cross_validation(data_xs, data_ys):
 
 def group_by(data, preprocess):
     results = ["", "", "", ""]
-
     tweets_list = []
     for tweet in data:
         tweets_list.append(tweet.x)
