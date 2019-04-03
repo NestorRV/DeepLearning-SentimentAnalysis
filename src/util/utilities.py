@@ -407,10 +407,11 @@ def plot_wordcloud(tweets, dataset, preprocess=False):
     tweets_text = group_by(tweets, preprocess)
 
     for i, text_class_i in enumerate(tweets_text):
-        wordcloud = WordCloud(background_color="rgba(255, 255, 255, 0)", mode="RGBA").generate(text_class_i)
-        pyplot.imshow(wordcloud, interpolation='bilinear')
-        pyplot.title("Data: " + dataset + " - Class: " + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i])
+        wordcloud = WordCloud(width=1600, height=800, background_color="white").generate(text_class_i)
+        pyplot.figure(figsize=(20, 10), facecolor='k')
+        pyplot.imshow(wordcloud)
+        pyplot.title("Data: " + dataset + " - Class: " + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i], fontsize = 40)
         pyplot.axis("off")
         pyplot.savefig("../plots/wordcloud_" + dataset + "_" + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i] +
-                       '-' + str(int(time.time())) + '.eps', dpi=1000, format='eps')
+                       '-' + str(int(time.time())) + '.eps', dpi=100, format='eps')
         pyplot.clf()
