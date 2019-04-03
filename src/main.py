@@ -153,7 +153,7 @@ def main():
         final_results_list.append(epochs100_pretrain_embeddings_rnn_results)
 
         test_ys_epochs100_pretrain_embeddings_rnn, _ = pretrain_embeddings_rnn(embeddings_file_path, train_xs, train_ys,
-                                                                               test_xs, epochs=100)
+                                                                               test_xs, epochs=100, verbose=0)
         kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn, 'epochs100_pretrain_embeddings_rnn')
 
     if should_compute["stacked_lstm_rnn"]:
