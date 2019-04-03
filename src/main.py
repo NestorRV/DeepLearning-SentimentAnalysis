@@ -10,6 +10,7 @@ from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rn
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
 from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
 from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
+from src.classifiers.single.adadelta_rnn import adadelta_rnn
 from src.classifiers.single.bidirectional_lstm_rnn import bidirectional_lstm_rnn
 from src.classifiers.single.big_LSTM_CONV_rnn import big_LSTM_CONV_rnn
 from src.classifiers.single.calculated_embeddings_LSTM_CONV import calculated_embeddings_LSTM_CONV
@@ -169,7 +170,7 @@ def main():
                                                validation_ys)
         final_results_list.append(adadelta_rnn_results)
 
-        test_ys_adadelta_rnn, _ = stacked_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
+        test_ys_adadelta_rnn, _ = adadelta_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_adadelta_rnn, 'adadelta_rnn')
 
     if should_compute["adam_lr_0005_rnn"]:
