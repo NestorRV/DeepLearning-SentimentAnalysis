@@ -68,7 +68,7 @@ def main():
     """ Modelling, Evaluation and Submission """
 
     should_compute = {
-        "tfidf_rnn": True,
+        "tfidf_rnn": False,
         "calculated_embeddings_rnn": False,
         "pretrain_embeddings_rnn": False,
         "sigmoid_pretrain_embeddings_rnn": False,
@@ -84,7 +84,7 @@ def main():
         "preprocess_calculated_embeddings_LSTM_CONV": False,
         "epochs50_preprocess_calculated_embeddings_LSTM_CONV": False,
         "big_LSTM_CONV_rnn": False,
-        "dropout_LSTM_CONV_rnn": False
+        "dropout_LSTM_CONV_rnn": True
     }
 
     final_results_list = []
@@ -279,7 +279,7 @@ def main():
 
         test_ys_dropout_LSTM_CONV_rnn, _ = dropout_LSMT_CONV_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
                                                                  verbose=0)
-        kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
+        # kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)

@@ -34,7 +34,7 @@ BAD_WORDS = ["cabron", "cabrona", "mierda", "cojones", "joder", "tonto", "puto",
              "gordo", "gorda", "maldito", "maldita", "pudrete", "zorra", "imbecil", "baboso", "babosa", "besugo",
              "besufa", "brasas", "capullo", "capulla", "cenutrio", "cenutria", "ceporro", "ceporra", "cretino",
              "cretina", "gañan", "lameculos", "lerdo", "lerda", "palurdo", "palurda", "panoli", "pagafantas",
-             "tocapelotas"]
+             "tocapelotas", "joputa"]
 
 
 def tokenize(text):
