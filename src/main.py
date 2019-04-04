@@ -5,8 +5,6 @@ from src.classifiers.cv.big_LSTM_CONV_rnn_cv import big_LSTM_CONV_rnn_cv
 from src.classifiers.cv.calculated_embeddings_LSTM_CONV_cv import calculated_embeddings_LSTM_CONV_cv
 from src.classifiers.cv.calculated_embeddings_rnn_cv import calculated_embeddings_rnn_cv
 from src.classifiers.cv.dropout_LSTM_CONV_rnn_cv import dropout_LSMT_CONV_rnn_cv
-from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_OVERSAMPLING_cv import \
-    pretrain_embeddings_LSTM_CONV_OVERSAMPLING_cv
 from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
 from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
@@ -84,7 +82,6 @@ def main():
         "adadelta_rnn": False,
         "adam_lr_0005_rnn": False,
         "pretrain_embeddings_LSTM_CONV": False,
-        "pretrain_embeddings_LSTM_CONV_OVERSAMPLING": True,
         "preprocess_tfidf_rnn": False,
         "preprocess_calculated_embeddings_rnn": False,
         "preprocess_pretrain_embeddings_rnn": False,
@@ -93,7 +90,8 @@ def main():
         "epochs50_preprocess_calculated_embeddings_LSTM_CONV": False,
         "big_LSTM_CONV_rnn": False,
         "dropout_LSTM_CONV_rnn": False,
-        "bidirectional_lstm_rnn": False
+        "bidirectional_lstm_rnn": False,
+        "pretrain_embeddings_LSTM_CONV_OVERSAMPLING": False
     }
 
     final_results_list = []
@@ -197,12 +195,6 @@ def main():
                                                                                  test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
 
-    if should_compute["pretrain_embeddings_LSTM_CONV_OVERSAMPLING"]:
-        pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV_OVERSAMPLING_cv(
-            embeddings_file_path, train_xs,
-            train_ys, validation_xs, validation_ys)
-        final_results = pd.concat([pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results])
-
     if should_compute["preprocess_tfidf_rnn"]:
         preprocess_tfidf_rnn_results = tfidf_rnn_cv('preprocess_tfidf_rnn', preprocessed_train_xs, train_ys,
                                                     preprocessed_validation_xs, validation_ys)
@@ -304,6 +296,22 @@ def main():
         test_ys_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
                                                                    verbose=0)
         kaggle_file(test_ids, test_ys_bidirectional_lstm_rnn, 'bidirectional_lstm_rnn')
+
+    if should_compute["pretrain_embeddings_LSTM_CONV_OVERSAMPLING"]:
+        oversampled_train_xs, oversampled_train_ys = oversampling(train_xs, train_ys)
+        pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV(embeddings_file_path,
+                                                                                           oversampled_train_xs,
+                                                                                           oversampled_train_ys,
+                                                                                           validation_xs, validation_ys)
+        final_results_list.append(pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results)
+
+        test_ys_preprocess_pretrain_embeddings_LSTM_CONV, _ = pretrain_embeddings_LSTM_CONV(embeddings_file_path,
+                                                                                            oversampled_train_xs,
+                                                                                            oversampled_train_ys,
+                                                                                            preprocessed_test_xs,
+                                                                                            verbose=0)
+        kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_LSTM_CONV,
+                    'preprocess_pretrain_embeddings_LSTM_CONV')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)
