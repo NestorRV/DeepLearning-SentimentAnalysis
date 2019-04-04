@@ -119,7 +119,6 @@ def oversampling(corpus, cls):
     bag_over, cls_over = smote.fit_resample(bag, cls)
 
     newCorpus = []
-    cont = 0
 
     for i in bag_over:
         newCorpusRow = "@user "
