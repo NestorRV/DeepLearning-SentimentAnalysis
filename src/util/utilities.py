@@ -116,7 +116,7 @@ def oversampling(corpus, cls):
         i = i + 1
 
     smote = SMOTE(random_state=42)
-    bag_over, cls_over = smote.fit_resample(bag, cls)
+    bag_over, cls_over = smote.fit_sample(bag, cls)
 
     newCorpus = []
 

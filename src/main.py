@@ -299,11 +299,13 @@ def main():
 
     if should_compute["pretrain_embeddings_LSTM_CONV_OVERSAMPLING"]:
         oversampled_train_xs, oversampled_train_ys = oversampling(train_xs, train_ys)
-        pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV_cv(embeddings_file_path,
-                                                                                              oversampled_train_xs,
-                                                                                              oversampled_train_ys,
-                                                                                              validation_xs,
-                                                                                              validation_ys)
+        pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV_cv(
+            "pretrain_embeddings_LSTM_CONV_OVERSAMPLING",
+            embeddings_file_path,
+            oversampled_train_xs,
+            oversampled_train_ys,
+            validation_xs,
+            validation_ys)
         final_results_list.append(pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results)
 
         test_ys_preprocess_pretrain_embeddings_LSTM_CONV, _ = pretrain_embeddings_LSTM_CONV(embeddings_file_path,
@@ -312,7 +314,7 @@ def main():
                                                                                             preprocessed_test_xs,
                                                                                             verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_LSTM_CONV,
-                    'preprocess_pretrain_embeddings_LSTM_CONV')
+                    'pretrain_embeddings_LSTM_CONV_OVERSAMPLING')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)
