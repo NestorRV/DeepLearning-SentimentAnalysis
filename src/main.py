@@ -6,6 +6,7 @@ from src.classifiers.cv.calculated_embeddings_LSTM_CONV_cv import calculated_emb
 from src.classifiers.cv.calculated_embeddings_rnn_cv import calculated_embeddings_rnn_cv
 from src.classifiers.cv.dropout_LSTM_CONV_rnn_cv import dropout_LSMT_CONV_rnn_cv
 from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
+from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_OVERSAMPLING_cv import pretrain_embeddings_LSTM_CONV_OVERSAMPLING_cv
 from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
 from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
@@ -17,6 +18,7 @@ from src.classifiers.single.calculated_embeddings_LSTM_CONV import calculated_em
 from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddings_rnn
 from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
 from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
+from src.classifiers.single.pretrain_embeddings_LSTM_CONV_OVERSAMPLING import pretrain_embeddings_LSTM_CONV_OVERSAMPLING
 from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
 from src.classifiers.single.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_embeddings_rnn
 from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
@@ -82,6 +84,7 @@ def main():
         "adadelta_rnn": False,
         "adam_lr_0005_rnn": False,
         "pretrain_embeddings_LSTM_CONV": False,
+        "pretrain_embeddings_LSTM_CONV_OVERSAMPLING": True,
         "preprocess_tfidf_rnn": False,
         "preprocess_calculated_embeddings_rnn": False,
         "preprocess_pretrain_embeddings_rnn": False,
@@ -193,6 +196,12 @@ def main():
                                                                                  train_ys,
                                                                                  test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
+
+    if should_compute["pretrain_embeddings_LSTM_CONV_OVERSAMPLING"]:
+        pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV_OVERSAMPLING_cv(embeddings_file_path, train_xs,
+                                                                                 train_ys, validation_xs, validation_ys)
+        final_results = pd.concat([pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results])
+
 
     if should_compute["preprocess_tfidf_rnn"]:
         preprocess_tfidf_rnn_results = tfidf_rnn_cv('preprocess_tfidf_rnn', preprocessed_train_xs, train_ys,

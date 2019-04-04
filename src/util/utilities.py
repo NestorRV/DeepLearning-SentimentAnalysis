@@ -3,6 +3,8 @@ import re
 import time
 import xml.etree.ElementTree
 from collections import OrderedDict
+#from  nltk.downloader import download
+from imblearn.over_sampling import SMOTE
 
 import keras
 import matplotlib
@@ -80,6 +82,57 @@ def fit_transform_vocabulary(corpus):
         corpus_indexes_append(doc_indexes)
 
     return vocabulary, corpus_indexes
+
+
+def oversampling(corpus, cls):
+    specialCharacters = [",", "...", ".", ".." , "!", "?", "¿", "¡", "(", ")"]
+    own_lowercase = str.lower  # lower case a string
+    vocabulary = {}  # vocabularies dict. associates foe each token in vocabulary, an index.
+    reverseVocabulary = {}
+    index = 0
+    for doc in corpus:  # for each document in corpus. a document is a tweet in our case.
+        tokens = tokenize(own_lowercase(doc))  # tokens, is a list of tokenizing doc, also in lowercase.
+        # so each word in doc will have a token corresponding to it.
+
+        for token in tokens:  # for each token ..
+            if RE_TOKEN_USER.fullmatch(token):  # if token fully match RE_TOKEN_USER, then replace token with " @user "
+                token = "@user"
+
+            if token not in vocabulary and token not in specialCharacters:  # if token, does not exist in vocabulary, then ..
+                vocabulary[token] = index  # add the corresponding index for token into vocabulary.
+                reverseVocabulary[index] = token
+                index = index + 1
+
+    bag = np.zeros( (len(corpus), len(vocabulary)) )
+    i = 0
+    for doc in corpus:  # for each document in corpus. a document is a tweet in our case.
+        tokens = tokenize(own_lowercase(doc))  # tokens, is a list of tokenizing doc, also in lowercase.
+        # so each word in doc will have a token corresponding to it.
+
+        for token in tokens:  # for each token ..
+            if RE_TOKEN_USER.fullmatch(token):  # if token fully match RE_TOKEN_USER, then replace token with " @user "
+                token = "@user"
+            if token not in specialCharacters:
+                bag[i, vocabulary[token]] = 1
+        i = i + 1
+
+    smote = SMOTE(random_state=42)
+    bag_over, cls_over = smote.fit_resample(bag, cls)
+
+    newCorpus = []
+    cont = 0
+
+    for i in bag_over:
+        newCorpusRow = "@user "
+        cont = 0
+        for j in i:
+            if(j == 1):
+                newCorpusRow = newCorpusRow + reverseVocabulary[cont] + " "
+            cont = cont + 1
+        newCorpus.append(newCorpusRow[:-1])
+
+    return newCorpus, cls_over
+
 
 
 def fit_transform_vocabulary_pretrain_embeddings(corpus, pre_embeddings_index):
@@ -279,8 +332,8 @@ def remove_emojis(tweet):
 
 
 def preprocess_tweets(tweets, stemming=False):
-    # download('stopwords')
-    # download('punkt')
+    #download('stopwords')
+    #download('punkt')
     stop_words = stopwords.words('spanish')
 
     preprocessed_tweets = []
