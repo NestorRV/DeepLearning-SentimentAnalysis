@@ -91,7 +91,11 @@ def main():
         'big_LSTM_CONV_rnn': False,
         'dropout_LSTM_CONV_rnn': False,
         'bidirectional_lstm_rnn': False,
-        'pretrain_embeddings_LSTM_CONV_OVERSAMPLING': False
+        'pretrain_embeddings_LSTM_CONV_OVERSAMPLING': False,
+        'fasttext_sbwc_bidirectional_lstm_rnn': False,
+        'glove_sbwc_i25_bidirectional_lstm_rnn': False,
+        'SBW_vectors_300_min5_bidirectional_lstm_rnn': False,
+        'wiki_es_bidirectional_lstm_rnn': False
     }
 
     final_results_list = []
@@ -311,6 +315,49 @@ def main():
                                                                                             verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_LSTM_CONV,
                     'pretrain_embeddings_LSTM_CONV_OVERSAMPLING')
+
+    if should_compute['fasttext_sbwc_bidirectional_lstm_rnn']:
+        fasttext_sbwc_bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('fasttext_sbwc_bidirectional_lstm_rnn',
+                                                                                 '../data/embeddings/fasttext_sbwc.vec',
+                                                                                 train_xs, train_ys, validation_xs,
+                                                                                 validation_ys)
+        final_results_list.append(fasttext_sbwc_bidirectional_lstm_rnn_results)
+
+        test_ys_fasttext_sbwc_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn('../data/embeddings/fasttext_sbwc.vec',
+                                                                                 train_xs,
+                                                                                 train_ys, test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_fasttext_sbwc_bidirectional_lstm_rnn, 'fasttext_sbwc_bidirectional_lstm_rnn')
+
+    if should_compute['glove_sbwc_i25_bidirectional_lstm_rnn']:
+        glove_sbwc_i25_bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv(
+            'glove_sbwc_i25_bidirectional_lstm_rnn', '../data/embeddings/glove_sbwc_i25.vec', train_xs, train_ys,
+            validation_xs, validation_ys)
+        final_results_list.append(glove_sbwc_i25_bidirectional_lstm_rnn_results)
+
+        test_ys_glove_sbwc_i25_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(
+            '../data/embeddings/glove_sbwc_i25.vec', train_xs, train_ys, test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_glove_sbwc_i25_bidirectional_lstm_rnn, 'glove_sbwc_i25_bidirectional_lstm_rnn')
+
+    if should_compute['SBW_vectors_300_min5_bidirectional_lstm_rnn']:
+        SBW_vectors_300_min5_bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv(
+            'SBW_vectors_300_min5_bidirectional_lstm_rnn', '../data/embeddings/SBW_vectors_300_min5.vec', train_xs,
+            train_ys, validation_xs, validation_ys)
+        final_results_list.append(SBW_vectors_300_min5_bidirectional_lstm_rnn_results)
+
+        test_ys_SBW_vectors_300_min5_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(
+            '../data/embeddings/SBW_vectors_300_min5.vec', train_xs, train_ys, test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_SBW_vectors_300_min5_bidirectional_lstm_rnn,
+                    'SBW_vectors_300_min5_bidirectional_lstm_rnn')
+
+    if should_compute['wiki_es_bidirectional_lstm_rnn']:
+        wiki_es_bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('wiki_es_bidirectional_lstm_rnn',
+                                                                           '../data/embeddings/wiki_es.vec', train_xs,
+                                                                           train_ys, validation_xs, validation_ys)
+        final_results_list.append(wiki_es_bidirectional_lstm_rnn_results)
+
+        test_ys_wiki_es_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn('../data/embeddings/wiki_es.vec', train_xs,
+                                                                           train_ys, test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_wiki_es_bidirectional_lstm_rnn, 'wiki_es_bidirectional_lstm_rnn')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)
