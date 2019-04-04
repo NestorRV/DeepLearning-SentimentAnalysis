@@ -3,8 +3,6 @@ import re
 import time
 import xml.etree.ElementTree
 from collections import OrderedDict
-#from  nltk.downloader import download
-from imblearn.over_sampling import SMOTE
 
 import keras
 import matplotlib
@@ -12,6 +10,8 @@ import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
 import tensorflow
+# from  nltk.downloader import download
+from imblearn.over_sampling import SMOTE
 from matplotlib import pyplot
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -85,7 +85,7 @@ def fit_transform_vocabulary(corpus):
 
 
 def oversampling(corpus, cls):
-    specialCharacters = [",", "...", ".", ".." , "!", "?", "¿", "¡", "(", ")"]
+    specialCharacters = [",", "...", ".", "..", "!", "?", "¿", "¡", "(", ")"]
     own_lowercase = str.lower  # lower case a string
     vocabulary = {}  # vocabularies dict. associates foe each token in vocabulary, an index.
     reverseVocabulary = {}
@@ -103,7 +103,7 @@ def oversampling(corpus, cls):
                 reverseVocabulary[index] = token
                 index = index + 1
 
-    bag = np.zeros( (len(corpus), len(vocabulary)) )
+    bag = np.zeros((len(corpus), len(vocabulary)))
     i = 0
     for doc in corpus:  # for each document in corpus. a document is a tweet in our case.
         tokens = tokenize(own_lowercase(doc))  # tokens, is a list of tokenizing doc, also in lowercase.
@@ -126,13 +126,12 @@ def oversampling(corpus, cls):
         newCorpusRow = "@user "
         cont = 0
         for j in i:
-            if(j == 1):
+            if (j == 1):
                 newCorpusRow = newCorpusRow + reverseVocabulary[cont] + " "
             cont = cont + 1
         newCorpus.append(newCorpusRow[:-1])
 
     return newCorpus, cls_over
-
 
 
 def fit_transform_vocabulary_pretrain_embeddings(corpus, pre_embeddings_index):
@@ -332,8 +331,8 @@ def remove_emojis(tweet):
 
 
 def preprocess_tweets(tweets, stemming=False):
-    #download('stopwords')
-    #download('punkt')
+    # download('stopwords')
+    # download('punkt')
     stop_words = stopwords.words('spanish')
 
     preprocessed_tweets = []
@@ -463,7 +462,7 @@ def plot_wordcloud(tweets, dataset, preprocess=False):
         wordcloud = WordCloud(width=1600, height=800, background_color="white").generate(text_class_i)
         pyplot.figure(figsize=(20, 10), facecolor='k')
         pyplot.imshow(wordcloud)
-        pyplot.title("Data: " + dataset + " - Class: " + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i], fontsize = 40)
+        pyplot.title("Data: " + dataset + " - Class: " + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i], fontsize=40)
         pyplot.axis("off")
         pyplot.savefig("../plots/wordcloud_" + dataset + "_" + src.util.global_vars.__NUM_TO_CLASSES_DIC__[i] +
                        '-' + str(int(time.time())) + '.eps', dpi=100, format='eps')

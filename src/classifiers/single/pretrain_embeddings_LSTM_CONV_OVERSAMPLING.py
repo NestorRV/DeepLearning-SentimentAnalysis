@@ -9,7 +9,8 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def pretrain_embeddings_LSTM_CONV_OVERSAMPLING(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
+def pretrain_embeddings_LSTM_CONV_OVERSAMPLING(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25,
+                                               verbose=1):
     own_set_seed()
 
     # Offset = 2; Padding and OOV.
