@@ -10,7 +10,6 @@ import matplotlib.lines as mlines
 import numpy as np
 import pandas as pd
 import tensorflow
-# from  nltk.downloader import download
 from imblearn.over_sampling import SMOTE
 from matplotlib import pyplot
 from nltk import word_tokenize
