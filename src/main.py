@@ -25,12 +25,12 @@ from src.util.utilities import *
 
 
 def main():
-    embeddings_file_path = "../data/embeddings/fasttext_spanish_twitter_100d.vec"
+    embeddings_file_path = '../data/embeddings/fasttext_spanish_twitter_100d.vec'
     train_raw_tweets = get_raw_tweets('../data/input/train.xml')
     test_raw_tweets = get_raw_tweets('../data/input/test.xml')
     validation_raw_tweets = get_raw_tweets('../data/input/validation.xml')
 
-    """ Mapping classes to numbers and vice versa """
+    ''' Mapping classes to numbers and vice versa '''
 
     raw_classes = [t.find('sentiment').find('polarity').find('value').text for t in train_raw_tweets]
 
@@ -38,7 +38,7 @@ def main():
     src.util.global_vars.__NUM_TO_CLASSES_DIC__ = dict(enumerate(src.util.global_vars.__CLASSES__))
     src.util.global_vars.__CLASSES_TO_NUM_DIC__ = {v: k for k, v in src.util.global_vars.__NUM_TO_CLASSES_DIC__.items()}
 
-    """ Reading and Loading data """
+    ''' Reading and Loading data '''
 
     train_tweets = [Tweet(t.find('tweetid').text, t.find('content').text,
                           src.util.global_vars.__CLASSES_TO_NUM_DIC__[
@@ -52,14 +52,14 @@ def main():
 
     test_tweets = [Tweet(t.find('tweetid').text, t.find('content').text) for t in test_raw_tweets]
 
-    """ Wordclouds """
+    ''' Wordclouds '''
 
     compute_wordclouds = False
     if compute_wordclouds:
-        plot_wordcloud(train_tweets, "train_preprocessed", True)
-        plot_wordcloud(train_tweets, "train")
-        plot_wordcloud(validation_tweets, "validation_preprocessed", True)
-        plot_wordcloud(validation_tweets, "validation")
+        plot_wordcloud(train_tweets, 'train_preprocessed', True)
+        plot_wordcloud(train_tweets, 'train')
+        plot_wordcloud(validation_tweets, 'validation_preprocessed', True)
+        plot_wordcloud(validation_tweets, 'validation')
 
     train_xs = get_xs(train_tweets)
     train_ys = get_ys(train_tweets)
@@ -70,56 +70,56 @@ def main():
     test_ids = get_ids(test_tweets)
     test_xs = get_xs(test_tweets)
 
-    """ Modelling, Evaluation and Submission """
+    ''' Modelling, Evaluation and Submission '''
 
     should_compute = {
-        "tfidf_rnn": False,
-        "calculated_embeddings_rnn": False,
-        "pretrain_embeddings_rnn": False,
-        "sigmoid_pretrain_embeddings_rnn": False,
-        "epochs100_pretrain_embeddings_rnn": False,
-        "stacked_lstm_rnn": False,
-        "adadelta_rnn": False,
-        "adam_lr_0005_rnn": False,
-        "pretrain_embeddings_LSTM_CONV": False,
-        "preprocess_tfidf_rnn": False,
-        "preprocess_calculated_embeddings_rnn": False,
-        "preprocess_pretrain_embeddings_rnn": False,
-        "preprocess_pretrain_embeddings_LSTM_CONV": False,
-        "preprocess_calculated_embeddings_LSTM_CONV": False,
-        "epochs50_preprocess_calculated_embeddings_LSTM_CONV": False,
-        "big_LSTM_CONV_rnn": False,
-        "dropout_LSTM_CONV_rnn": False,
-        "bidirectional_lstm_rnn": False,
-        "pretrain_embeddings_LSTM_CONV_OVERSAMPLING": False
+        'tfidf_rnn': False,
+        'calculated_embeddings_rnn': False,
+        'pretrain_embeddings_rnn': False,
+        'sigmoid_pretrain_embeddings_rnn': False,
+        'epochs100_pretrain_embeddings_rnn': False,
+        'stacked_lstm_rnn': False,
+        'adadelta_rnn': False,
+        'adam_lr_0005_rnn': False,
+        'pretrain_embeddings_LSTM_CONV': False,
+        'preprocess_tfidf_rnn': False,
+        'preprocess_calculated_embeddings_rnn': False,
+        'preprocess_pretrain_embeddings_rnn': False,
+        'preprocess_pretrain_embeddings_LSTM_CONV': False,
+        'preprocess_calculated_embeddings_LSTM_CONV': False,
+        'epochs50_preprocess_calculated_embeddings_LSTM_CONV': False,
+        'big_LSTM_CONV_rnn': False,
+        'dropout_LSTM_CONV_rnn': False,
+        'bidirectional_lstm_rnn': False,
+        'pretrain_embeddings_LSTM_CONV_OVERSAMPLING': False
     }
 
     final_results_list = []
 
-    """
+    '''
     ************************************* 
     Preprocesamiento de datos
     *************************************
-    """
+    '''
 
     preprocessed_train_xs = preprocess_tweets(train_xs)
     preprocessed_validation_xs = preprocess_tweets(validation_xs)
     preprocessed_test_xs = preprocess_tweets(test_xs)
 
-    """
+    '''
     ************************************* 
     Modelos 
     *************************************
-    """
+    '''
 
-    if should_compute["tfidf_rnn"]:
+    if should_compute['tfidf_rnn']:
         tfidf_rnn_results = tfidf_rnn_cv('tfidf_rnn', train_xs, train_ys, validation_xs, validation_ys)
         final_results_list.append(tfidf_rnn_results)
 
         test_ys_tfidf_rnn, _ = tfidf_rnn(train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_tfidf_rnn, 'tfidf-rnn')
 
-    if should_compute["calculated_embeddings_rnn"]:
+    if should_compute['calculated_embeddings_rnn']:
         calculated_embeddings_rnn_results = calculated_embeddings_rnn_cv('calculated_embeddings_rnn', train_xs,
                                                                          train_ys, validation_xs, validation_ys)
         final_results_list.append(calculated_embeddings_rnn_results)
@@ -127,7 +127,7 @@ def main():
         test_ys_calculated_embeddings_rnn, _ = calculated_embeddings_rnn(train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_calculated_embeddings_rnn, 'calculated_embeddings_rnn')
 
-    if should_compute["pretrain_embeddings_rnn"]:
+    if should_compute['pretrain_embeddings_rnn']:
         ys_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv('pretrain_embeddings_rnn',
                                                                         embeddings_file_path, train_xs, train_ys,
                                                                         validation_xs, validation_ys)
@@ -137,7 +137,7 @@ def main():
                                                                      verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_rnn, 'pretrain_embeddings_rnn')
 
-    if should_compute["sigmoid_pretrain_embeddings_rnn"]:
+    if should_compute['sigmoid_pretrain_embeddings_rnn']:
         sigmoid_pretrain_embeddings_rnn_results = sigmoid_pretrain_embeddings_rnn_cv('sigmoid_pretrain_embeddings_rnn',
                                                                                      embeddings_file_path, train_xs,
                                                                                      train_ys, validation_xs,
@@ -148,7 +148,7 @@ def main():
                                                                                      train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_sigmoid_pretrain_embeddings_rnn, 'sigmoid-pretrain_embeddings_rnn')
 
-    if should_compute["epochs100_pretrain_embeddings_rnn"]:
+    if should_compute['epochs100_pretrain_embeddings_rnn']:
         epochs100_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv('epochs100_pretrain_embeddings_rnn',
                                                                                embeddings_file_path, train_xs, train_ys,
                                                                                validation_xs, validation_ys, epochs=100)
@@ -158,7 +158,7 @@ def main():
                                                                                test_xs, epochs=100, verbose=0)
         kaggle_file(test_ids, test_ys_epochs100_pretrain_embeddings_rnn, 'epochs100_pretrain_embeddings_rnn')
 
-    if should_compute["stacked_lstm_rnn"]:
+    if should_compute['stacked_lstm_rnn']:
         stacked_lstm_rnn_results = stacked_lstm_rnn_cv('stacked_lstm_rnn', embeddings_file_path, train_xs, train_ys,
                                                        validation_xs, validation_ys)
         final_results_list.append(stacked_lstm_rnn_results)
@@ -166,7 +166,7 @@ def main():
         test_ys_stacked_lstm_rnn, _ = stacked_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_stacked_lstm_rnn, 'stacked_lstm_rnn')
 
-    if should_compute["adadelta_rnn"]:
+    if should_compute['adadelta_rnn']:
         adadelta_rnn_results = adadelta_rnn_cv('adadelta_rnn', embeddings_file_path, train_xs, train_ys, validation_xs,
                                                validation_ys)
         final_results_list.append(adadelta_rnn_results)
@@ -174,7 +174,7 @@ def main():
         test_ys_adadelta_rnn, _ = adadelta_rnn(embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_adadelta_rnn, 'adadelta_rnn')
 
-    if should_compute["adam_lr_0005_rnn"]:
+    if should_compute['adam_lr_0005_rnn']:
         adam_lr_0005_rnn_results = pretrain_embeddings_rnn_cv('adam_lr_0005_rnn', embeddings_file_path, train_xs,
                                                               train_ys, validation_xs, validation_ys,
                                                               learning_rate=0.0005)
@@ -184,7 +184,7 @@ def main():
                                                               learning_rate=0.0005, verbose=0)
         kaggle_file(test_ids, test_ys_adam_lr_0005_rnn, 'adam_lr_0005')
 
-    if should_compute["pretrain_embeddings_LSTM_CONV"]:
+    if should_compute['pretrain_embeddings_LSTM_CONV']:
         pretrain_embeddings_LSTM_CONV_results = pretrain_embeddings_LSTM_CONV_cv('pretrain_embeddings_LSTM_CONV',
                                                                                  embeddings_file_path, train_xs,
                                                                                  train_ys, validation_xs, validation_ys)
@@ -195,7 +195,7 @@ def main():
                                                                                  test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
 
-    if should_compute["preprocess_tfidf_rnn"]:
+    if should_compute['preprocess_tfidf_rnn']:
         preprocess_tfidf_rnn_results = tfidf_rnn_cv('preprocess_tfidf_rnn', preprocessed_train_xs, train_ys,
                                                     preprocessed_validation_xs, validation_ys)
         final_results_list.append(preprocess_tfidf_rnn_results)
@@ -203,7 +203,7 @@ def main():
         test_ys_preprocess_tfidf_rnn, _ = tfidf_rnn(preprocessed_train_xs, train_ys, preprocessed_test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_tfidf_rnn, 'preprocess_tfidf_rnn')
 
-    if should_compute["preprocess_calculated_embeddings_rnn"]:
+    if should_compute['preprocess_calculated_embeddings_rnn']:
         preprocess_calculated_embeddings_rnn_results = calculated_embeddings_rnn_cv(
             'preprocess_calculated_embeddings_rnn', preprocessed_train_xs, train_ys, preprocessed_validation_xs,
             validation_ys)
@@ -213,7 +213,7 @@ def main():
                                                                                     preprocessed_test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_calculated_embeddings_rnn, 'preprocess_calculated_embeddings_rnn')
 
-    if should_compute["preprocess_pretrain_embeddings_rnn"]:
+    if should_compute['preprocess_pretrain_embeddings_rnn']:
         preprocess_pretrain_embeddings_rnn_results = pretrain_embeddings_rnn_cv('preprocess_pretrain_embeddings_rnn',
                                                                                 embeddings_file_path,
                                                                                 preprocessed_train_xs, train_ys,
@@ -226,7 +226,7 @@ def main():
                                                                                 preprocessed_test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_rnn, 'preprocess_pretrain_embeddings_rnn')
 
-    if should_compute["preprocess_pretrain_embeddings_LSTM_CONV"]:
+    if should_compute['preprocess_pretrain_embeddings_LSTM_CONV']:
         preprocess_pretrain_embeddings_LSTM_CONV_results = pretrain_embeddings_LSTM_CONV_cv(
             'preprocess_pretrain_embeddings_LSTM_CONV', embeddings_file_path, preprocessed_train_xs, train_ys,
             preprocessed_validation_xs, validation_ys)
@@ -240,7 +240,7 @@ def main():
         kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_LSTM_CONV,
                     'preprocess_pretrain_embeddings_LSTM_CONV')
 
-    if should_compute["preprocess_calculated_embeddings_LSTM_CONV"]:
+    if should_compute['preprocess_calculated_embeddings_LSTM_CONV']:
         stemming_preprocessed_train_xs = preprocess_tweets(train_xs, True)
         stemming_preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
 
@@ -256,7 +256,7 @@ def main():
         kaggle_file(test_ids, test_ys_preprocess_calculated_embeddings_LSTM_CONV,
                     'preprocess_calculated_embeddings_LSTM_CONV')
 
-    if should_compute["epochs50_preprocess_calculated_embeddings_LSTM_CONV"]:
+    if should_compute['epochs50_preprocess_calculated_embeddings_LSTM_CONV']:
         stemming_preprocessed_train_xs = preprocess_tweets(train_xs, True)
         stemming_preprocessed_validation_xs = preprocess_tweets(validation_xs, True)
 
@@ -270,7 +270,7 @@ def main():
         kaggle_file(test_ids, test_ys_epochs50_preprocess_calculated_embeddings_LSTM_CONV,
                     'epochs50_preprocess_calculated_embeddings_LSTM_CONV')
 
-    if should_compute["big_LSTM_CONV_rnn"]:
+    if should_compute['big_LSTM_CONV_rnn']:
         big_LSTM_CONV_rnn_results = big_LSTM_CONV_rnn_cv('big_LSTM_CONV_rnn', embeddings_file_path, train_xs, train_ys,
                                                          validation_xs, validation_ys)
         final_results_list.append(big_LSTM_CONV_rnn_results)
@@ -279,7 +279,7 @@ def main():
                                                          verbose=0)
         kaggle_file(test_ids, test_ys_big_LSTM_CONV_rnn, 'big_LSTM_CONV_rnn')
 
-    if should_compute["dropout_LSTM_CONV_rnn"]:
+    if should_compute['dropout_LSTM_CONV_rnn']:
         dropout_LSTM_CONV_rnn_results = dropout_LSMT_CONV_rnn_cv('dropout_LSTM_CONV_rnn', embeddings_file_path,
                                                                  train_xs, train_ys, validation_xs, validation_ys)
         final_results_list.append(dropout_LSTM_CONV_rnn_results)
@@ -288,7 +288,7 @@ def main():
                                                                  verbose=0)
         kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
-    if should_compute["bidirectional_lstm_rnn"]:
+    if should_compute['bidirectional_lstm_rnn']:
         bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('bidirectional_lstm_rnn', embeddings_file_path,
                                                                    train_xs, train_ys, validation_xs, validation_ys)
         final_results_list.append(bidirectional_lstm_rnn_results)
@@ -297,10 +297,10 @@ def main():
                                                                    verbose=0)
         kaggle_file(test_ids, test_ys_bidirectional_lstm_rnn, 'bidirectional_lstm_rnn')
 
-    if should_compute["pretrain_embeddings_LSTM_CONV_OVERSAMPLING"]:
+    if should_compute['pretrain_embeddings_LSTM_CONV_OVERSAMPLING']:
         oversampled_train_xs, oversampled_train_ys = oversampling(train_xs, train_ys)
         pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV_cv(
-            "pretrain_embeddings_LSTM_CONV_OVERSAMPLING",
+            'pretrain_embeddings_LSTM_CONV_OVERSAMPLING',
             embeddings_file_path,
             oversampled_train_xs,
             oversampled_train_ys,
@@ -321,5 +321,5 @@ def main():
     print(final_results)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
