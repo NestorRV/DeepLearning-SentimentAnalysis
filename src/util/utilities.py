@@ -30,12 +30,26 @@ EMB_SEP_CHAR = " "
 RE_TOKEN_USER = re.compile(
     r"(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){20}(?!@))|(?<![A-Za-z0-9_!@#$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)")
 FOLDS_CV = 5
-BAD_WORDS = ["cabron", "cabrona", "mierda", "cojones", "joder", "tonto", "puto", "puta", "gilipollas", "hostia",
-             "ostia", "follen", "follar", "coño", "cago", "cagar", "tonto", "tonta", "idiota", "estupido", "feo", "fea",
+BAD_WORDS = ["cabron", "cabrona", "mierda", "cojones", "joder", "tonto", "tonta" "puto", "gilipollas", "hostia",
+             "ostia", "follen", "follar", "coño", "cago", "cagar", "tonta", "idiota", "estupido", "feo", "fea",
              "gordo", "gorda", "maldito", "maldita", "pudrete", "zorra", "imbecil", "baboso", "babosa", "besugo",
              "besufa", "brasas", "capullo", "capulla", "cenutrio", "cenutria", "ceporro", "ceporra", "cretino",
              "cretina", "gañan", "lameculos", "lerdo", "lerda", "palurdo", "palurda", "panoli", "pagafantas",
-             "tocapelotas", "joputa"]
+             "tocapelotas", "joputa", "maleducado", "maleducada", "malparido", "malparida"]
+
+NEGATIVE_ADVERB = ["no", "ni", "nunca", "jamás", "tampoco", "nadie", "ningún", "ninguno", "ninguna", "mal", "malo",
+                   "mala", "fatal", "terrible", "mierda", "peor", "catástrofe", "triste", "tristeza", "no me gusta",
+                   "débil", "menos", "feo", "fea", "agresivo", "agresiva", "horrible", "mentiroso", "violento",
+                   "violencia", "agresión", "falso", "desesperado", "asco", "asqueroso", "negativo", "hijo de puta",
+                   "hija de puta", "pobre", "desastre"]
+
+COMPLIMENT_WORDS = ["perfecto", "perfect", "genial", "maravilloso", "maravilla", "bueno", "buena", "fuerte", "más",
+                    "Alegre", "bonito", "bonita", "excepcional", "excelente", "fantástico", "estupendo", "enorme",
+                    "linda", "lindo", "grande", "hermoso", "hermosa", "delicioso", "deliciosa", "sabroso", "sabrosa",
+                    "felicidad", "fleicitación", "enhorabuena", "bello", "bella", "encanta", "positivo", "gracia",
+                    "gracias", "agradec", "de puta madre", "ánimo", "feliz", "gusta", "molona"]
+
+QUESTIONING_AND_DOUBT_WORDS = ["pero", "a lo mejor", "quizás", "no lo se", "por qué", "probablemente", "ni idea"]
 
 
 def tokenize(text):
@@ -382,6 +396,94 @@ def preprocess_tweets(tweets, stemming=False):
         preprocessed_tweets.append(tweet_words)
 
     return preprocessed_tweets
+
+
+def count_hashtag(tweet):
+    """
+    count_hashtag, a function used to count the hashtags in a tweet text.
+    :param tweet: the tweet text
+    :return: the count of hashtags in tweet.
+    """
+    return len(re.findall(r'#(\S+)', tweet))
+
+
+def count_elongated_words(tweet):
+    return len(re.findall(r'(.)\1+\1+', tweet))
+
+
+def detect_special_punctuations(tweet):
+    if '?' in tweet or '!' in tweet:
+        return 1
+    else:
+        return 0
+
+
+def count_proportion_negativity(tweet):
+    count = 0
+    for negative_adv in NEGATIVE_ADVERB:
+        if negative_adv in tweet:
+            count += 1
+
+    return count, count / len(tweet.split())
+
+
+def detect_insulting(tweet):
+    count = 0
+    for insult in BAD_WORDS:
+        if insult in tweet:
+            count += 1
+
+    return count
+
+
+def count_proportion_positivity(tweet):
+    count = 0
+    for positive_adv in COMPLIMENT_WORDS:
+        if positive_adv in tweet:
+            count += 1
+
+    return count, count / len(tweet.split())
+
+
+def count_questioning_doubt_words(tweet):
+    count = 0
+    for adv in QUESTIONING_AND_DOUBT_WORDS:
+        if adv in tweet:
+            count += 1
+
+    return count
+
+
+def tweet_length(tweet):
+    return len(tweet.split())
+
+
+def transform_data(dataset):
+    transformed_df = pd.DataFrame(columns=['Tweet_Length', 'Hashtag_Counts', 'Punctuation_Exists',
+                                           'Questioning_Doubt_Words_Count', 'Negative_Count', 'Negative_Proportion',
+                                           'Positive_Counts', 'Positive_Proportion', 'Insults_Count'])
+
+    for tweet in dataset:
+        remove_emojis(tweet)
+        tweet = tweet.lower()
+
+        tweet_len = len(tweet)
+        hashtag_counts = count_hashtag(tweet)
+        punctuation_exist = detect_special_punctuations(tweet)
+        questioning_doubt = count_questioning_doubt_words(tweet)
+        negative_count, negative_prop = count_proportion_negativity(tweet)
+        positive_count, positive_prop = count_proportion_positivity(tweet)
+        insults_count = detect_insulting(tweet)
+
+        transformed_df = transformed_df.append(
+            pd.Series([tweet_len, hashtag_counts, punctuation_exist, questioning_doubt, negative_count,
+                       negative_prop, positive_count, positive_prop, insults_count], index=transformed_df.columns)
+            , ignore_index=True)
+
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(transformed_df)
+
+    return transformed_df
 
 
 def micro_f1(y_true, y_pred):

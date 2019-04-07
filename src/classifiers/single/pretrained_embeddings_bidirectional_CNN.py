@@ -1,15 +1,15 @@
-from keras.layers import MaxPooling1D, Conv1D, AveragePooling1D
-from keras.layers.core import Dense, Dropout
-from keras.layers.core import Flatten
+from keras.layers import Bidirectional, GlobalMaxPool1D, Dropout, MaxPooling1D, Conv1D, AveragePooling1D, Flatten
+from keras.layers.core import Dense
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
+from keras.optimizers import Adam
 from keras.preprocessing import sequence
 
 from src.util.utilities import *
 
 
-def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, verbose=1):
+def bidirectional_lstm_rnn_CNN(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1):
     own_set_seed()
 
     # Offset = 2; Padding and OOV.
@@ -38,9 +38,8 @@ def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, 
     nn_model.add(Embedding(len(word_embeddings), len(word_embeddings[0]), weights=[np_array(word_embeddings)],
                            input_length=max_len_input, trainable=False))
 
-    nn_model.add(LSTM(64, return_sequences=True))
-    nn_model.add(Dropout(0.5))
-    nn_model.add(MaxPooling1D())
+    nn_model.add(Bidirectional(LSTM(64, return_sequences=True, dropout=0.25, recurrent_dropout=0.1)))
+    nn_model.add(GlobalMaxPool1D())
 
     nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
     nn_model.add(Dropout(0.5))
@@ -53,7 +52,8 @@ def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, 
     nn_model.add(Flatten())
     nn_model.add(Dense(len(src.util.global_vars.__CLASSES__), activation='softmax'))
 
-    nn_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+    adam_optimizer = Adam(lr=0.001)
+    nn_model.compile(optimizer=adam_optimizer, loss="sparse_categorical_crossentropy")
 
     if verbose == 1:
         print(nn_model.summary())
@@ -63,17 +63,13 @@ def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, 
     np_labels_train = np.array(train_ys)
     test_features_pad = sequence.pad_sequences(corpus_test_index, maxlen=max_len_input, padding="post",
                                                truncating="post", dtype=type(corpus_test_index[0][0]))
-    print(train_features_pad[1])
-    pd_ = pd.DataFrame(data=train_features_pad[1:, 1:],  # values
-                    index = train_features_pad[1:, 0],  # 1st column as index
-                    columns = train_features_pad[0, 1:])  # 1st row as the column names
 
     history = None
     if test_ys is None:
-        nn_model.fit(train_features_pad, np_labels_train, batch_size=32, epochs=epochs, verbose=verbose)
+        nn_model.fit(train_features_pad, np_labels_train, batch_size=32, epochs=10, verbose=verbose)
     else:
         history = nn_model.fit(train_features_pad, np_labels_train, validation_data=(test_features_pad, test_ys),
-                               batch_size=32, epochs=epochs, verbose=verbose)
+                               batch_size=32, epochs=10, verbose=verbose)
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
     return y_labels, history

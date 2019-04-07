@@ -1,3 +1,5 @@
+from keras.optimizers import Adam
+
 import src.util.global_vars
 from src.classifiers.cv.adadelta_rnn_cv import adadelta_rnn_cv
 from src.classifiers.cv.bidirectional_lstm_rnn_cv import bidirectional_lstm_rnn_cv
@@ -9,6 +11,7 @@ from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddi
 from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
 from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
+from src.classifiers.cv.pretrained_embeddings_bidirectional_CNN_cv import pretrained_embeddings_bidirectional_CNN_cv
 from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
 from src.classifiers.single.adadelta_rnn import adadelta_rnn
 from src.classifiers.single.bidirectional_lstm_rnn import bidirectional_lstm_rnn
@@ -21,6 +24,7 @@ from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_r
 from src.classifiers.single.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_embeddings_rnn
 from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.single.tfidf_rnn import tfidf_rnn
+from src.classifiers.single.pretrained_embeddings_bidirectional_CNN import bidirectional_lstm_rnn_CNN
 from src.util.utilities import *
 
 
@@ -85,7 +89,7 @@ def main():
         'preprocess_tfidf_rnn': False,
         'preprocess_calculated_embeddings_rnn': False,
         'preprocess_pretrain_embeddings_rnn': False,
-        'preprocess_pretrain_embeddings_LSTM_CONV': False,
+        'preprocess_pretrain_embeddings_LSTM_CONV': True,
         'preprocess_calculated_embeddings_LSTM_CONV': False,
         'epochs50_preprocess_calculated_embeddings_LSTM_CONV': False,
         'big_LSTM_CONV_rnn': False,
@@ -95,7 +99,8 @@ def main():
         'fasttext_sbwc_bidirectional_lstm_rnn': False,
         'glove_sbwc_i25_bidirectional_lstm_rnn': False,
         'SBW_vectors_300_min5_bidirectional_lstm_rnn': False,
-        'wiki_es_bidirectional_lstm_rnn': False
+        'wiki_es_bidirectional_lstm_rnn': False,
+        'preprocess_pretrain_embeddings_Bidirectional_LSTM_CONV': True
     }
 
     final_results_list = []
@@ -197,6 +202,7 @@ def main():
         test_ys_pretrain_embeddings_LSTM_CONV, _ = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs,
                                                                                  train_ys,
                                                                                  test_xs, verbose=0)
+        print(test_ys_pretrain_embeddings_LSTM_CONV)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
 
     if should_compute['preprocess_tfidf_rnn']:
@@ -359,10 +365,123 @@ def main():
                                                                            train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_wiki_es_bidirectional_lstm_rnn, 'wiki_es_bidirectional_lstm_rnn')
 
+    if should_compute['preprocess_pretrain_embeddings_Bidirectional_LSTM_CONV']:
+        bidirectional_lstm_rnn_CNN_results = pretrained_embeddings_bidirectional_CNN_cv('bidirectional_lstm_rnn_CNN',
+                                                                                        '../data/embeddings'
+                                                                                        '/fasttext_spanish_twitter_100d.vec',
+                                                                                        train_xs,
+                                                                                        train_ys, validation_xs,
+                                                                                        validation_ys)
+        final_results_list.append(bidirectional_lstm_rnn_CNN_results)
+
+        test_ys_bidirectional_lstm_rnn_CNN, _ = bidirectional_lstm_rnn_CNN('../data/embeddings'
+                                                                           '/fasttext_spanish_twitter_100d.vec',
+                                                                           train_xs,
+                                                                           train_ys, test_xs, verbose=0)
+        kaggle_file(test_ids, test_ys_bidirectional_lstm_rnn_CNN, 'bidirectional_lstm_rnn_CNN')
+
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)
     print(final_results)
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    embeddings_file_path = '../data/embeddings/fasttext_spanish_twitter_100d.vec'
+    train_raw_tweets = get_raw_tweets('../data/input/train.xml')
+    test_raw_tweets = get_raw_tweets('../data/input/test.xml')
+    validation_raw_tweets = get_raw_tweets('../data/input/validation.xml')
+
+    ''' Mapping classes to numbers and vice versa '''
+
+    raw_classes = [t.find('sentiment').find('polarity').find('value').text for t in train_raw_tweets]
+
+    src.util.global_vars.__CLASSES__ = set(raw_classes)
+    src.util.global_vars.__NUM_TO_CLASSES_DIC__ = dict(enumerate(src.util.global_vars.__CLASSES__))
+    src.util.global_vars.__CLASSES_TO_NUM_DIC__ = {v: k for k, v in src.util.global_vars.__NUM_TO_CLASSES_DIC__.items()}
+
+    ''' Reading and Loading data '''
+
+    train_tweets = [Tweet(t.find('tweetid').text, t.find('content').text,
+                          src.util.global_vars.__CLASSES_TO_NUM_DIC__[
+                              t.find('sentiment').find('polarity').find('value').text])
+                    for t in train_raw_tweets]
+
+    validation_tweets = [Tweet(t.find('tweetid').text, t.find('content').text,
+                               src.util.global_vars.__CLASSES_TO_NUM_DIC__[
+                                   t.find('sentiment').find('polarity').find('value').text])
+                         for t in validation_raw_tweets]
+
+    test_tweets = [Tweet(t.find('tweetid').text, t.find('content').text) for t in test_raw_tweets]
+
+    train_xs = get_xs(train_tweets)
+    train_ys = get_ys(train_tweets)
+
+    validation_xs = get_xs(validation_tweets)
+    validation_ys = get_ys(validation_tweets)
+
+    test_ids = get_ids(test_tweets)
+    test_xs = get_xs(test_tweets)
+
+    train_xs_transformed = transform_data(train_xs).values
+    validation_xs_transformed = transform_data(validation_xs).values
+    test_xs_transformed = transform_data(test_xs).values
+
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+
+    sns.pairplot(transform_data(train_xs))
+    plt.show()
+
+    # standardizing the input feature
+    from sklearn.preprocessing import StandardScaler
+
+    print(train_xs_transformed)
+    sc = StandardScaler()
+    train_xs_transformed = sc.fit_transform(train_xs_transformed)
+    print(train_xs_transformed)
+
+    from keras import Sequential
+    from keras.layers import Dense, Bidirectional, LSTM, GlobalMaxPool1D, Dropout, AveragePooling1D, Flatten, Conv1D, \
+        MaxPooling1D
+
+    nn_model = Sequential()
+    """
+    # First Hidden Layer
+    nn_model.add(Dense(32, activation='relu', kernel_initializer='random_normal', input_dim=9))
+    # Second  Hidden Layer
+    nn_model.add(Dense(64, activation='relu', kernel_initializer='random_normal'))
+    # Output Layer
+    nn_model.add(Dense(1, activation='sigmoid', kernel_initializer='random_normal'))
+    
+    # Compiling the neural network
+    nn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    """
+    train_xs_transformed = train_xs_transformed.reshape(
+        (train_xs_transformed.shape[0], train_xs_transformed.shape[1], 1))
+
+    validation_xs_transformed = validation_xs_transformed.reshape(
+        (validation_xs_transformed.shape[0], validation_xs_transformed.shape[1], 1))
+
+
+    nn_model.add(LSTM(64, return_sequences=True))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(MaxPooling1D())
+
+    nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(AveragePooling1D())
+
+    nn_model.add(Dense(128, activation='relu'))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(AveragePooling1D())
+
+    nn_model.add(Flatten())
+    nn_model.add(Dense(len(src.util.global_vars.__CLASSES__), activation='softmax'))
+
+    nn_model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
+    # Fitting the data to the training dataset
+    nn_model.fit(train_xs_transformed, np.array(train_ys),  batch_size=32, epochs=100)
+
+    y_labels = nn_model.predict_classes(validation_xs_transformed, batch_size=32, verbose=True)
+    metrics_i = evaluate(np.array(validation_ys), y_labels, "nn_model")
