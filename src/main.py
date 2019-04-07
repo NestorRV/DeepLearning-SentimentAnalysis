@@ -90,8 +90,8 @@ def main():
         'epochs50_preprocess_calculated_embeddings_LSTM_CONV': False,
         'big_LSTM_CONV_rnn': False,
         'dropout_LSTM_CONV_rnn': False,
-        'bidirectional_lstm_rnn': False,
         'pretrain_embeddings_LSTM_CONV_OVERSAMPLING': False,
+        'bidirectional_lstm_rnn': False,
         'fasttext_sbwc_bidirectional_lstm_rnn': False,
         'glove_sbwc_i25_bidirectional_lstm_rnn': False,
         'SBW_vectors_300_min5_bidirectional_lstm_rnn': False,
@@ -292,15 +292,6 @@ def main():
                                                                  verbose=0)
         kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
-    if should_compute['bidirectional_lstm_rnn']:
-        bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('bidirectional_lstm_rnn', embeddings_file_path,
-                                                                   train_xs, train_ys, validation_xs, validation_ys)
-        final_results_list.append(bidirectional_lstm_rnn_results)
-
-        test_ys_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
-                                                                   verbose=0)
-        kaggle_file(test_ids, test_ys_bidirectional_lstm_rnn, 'bidirectional_lstm_rnn')
-
     if should_compute['pretrain_embeddings_LSTM_CONV_OVERSAMPLING']:
         oversampled_train_xs, oversampled_train_ys = oversampling(train_xs, train_ys)
         pretrain_embeddings_LSTM_CONV_OVERSAMPLING_results = pretrain_embeddings_LSTM_CONV_cv(
@@ -315,6 +306,15 @@ def main():
                                                                                             verbose=0)
         kaggle_file(test_ids, test_ys_preprocess_pretrain_embeddings_LSTM_CONV,
                     'pretrain_embeddings_LSTM_CONV_OVERSAMPLING')
+
+    if should_compute['bidirectional_lstm_rnn']:
+        bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('bidirectional_lstm_rnn', embeddings_file_path,
+                                                                   train_xs, train_ys, validation_xs, validation_ys)
+        final_results_list.append(bidirectional_lstm_rnn_results)
+
+        test_ys_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
+                                                                   verbose=0)
+        kaggle_file(test_ids, test_ys_bidirectional_lstm_rnn, 'bidirectional_lstm_rnn')
 
     if should_compute['fasttext_sbwc_bidirectional_lstm_rnn']:
         fasttext_sbwc_bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('fasttext_sbwc_bidirectional_lstm_rnn',
