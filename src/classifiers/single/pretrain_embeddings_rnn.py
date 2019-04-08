@@ -11,9 +11,6 @@ from src.util.utilities import *
 
 def pretrain_embeddings_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, epochs=25, learning_rate=0.001,
                             verbose=1):
-    """Classification with RNN and embeddings (no pre-trained)
-    """
-
     own_set_seed()
 
     # Offset = 2; Padding and OOV.

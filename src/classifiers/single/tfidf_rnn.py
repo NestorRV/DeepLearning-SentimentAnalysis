@@ -9,9 +9,6 @@ from src.util.utilities import *
 
 
 def tfidf_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1):
-    """Classification using a RNN with tfidf as features
-    """
-
     own_set_seed()
 
     # Representation

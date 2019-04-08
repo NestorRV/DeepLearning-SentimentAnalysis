@@ -9,9 +9,6 @@ from src.util.utilities import *
 
 
 def calculated_embeddings_rnn(train_xs, train_ys, test_xs, test_ys=None, verbose=1):
-    """Classification with RNN and embeddings (no pre-trained)
-    """
-
     own_set_seed()
 
     # Build vocabulary and corpus indexes
