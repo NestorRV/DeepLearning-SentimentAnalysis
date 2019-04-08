@@ -1,4 +1,4 @@
-from keras.layers import Bidirectional, GlobalMaxPool1D, Dropout, MaxPooling1D, Conv1D, AveragePooling1D, Flatten
+from keras.layers import Bidirectional, GlobalMaxPool1D, Dropout, Conv1D, AveragePooling1D, MaxPooling1D, Flatten, GRU
 from keras.layers.core import Dense
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
@@ -9,7 +9,7 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def bidirectional_lstm_rnn_CNN(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1):
+def pretrained_embeddings_bidirectional_CNN(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1):
     own_set_seed()
 
     # Offset = 2; Padding and OOV.
@@ -39,13 +39,17 @@ def bidirectional_lstm_rnn_CNN(embeddings_path, train_xs, train_ys, test_xs, tes
                            input_length=max_len_input, trainable=False))
 
     nn_model.add(Bidirectional(LSTM(64, return_sequences=True, dropout=0.25, recurrent_dropout=0.1)))
-    nn_model.add(GlobalMaxPool1D())
+    nn_model.add(MaxPooling1D())
 
     nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
     nn_model.add(Dropout(0.5))
     nn_model.add(AveragePooling1D())
 
-    nn_model.add(Dense(128, activation='relu'))
+    nn_model.add(GRU(128, 5, activation='sigmoid', padding='same'))
+    nn_model.add(Dropout(0.5))
+    nn_model.add(AveragePooling1D())
+
+    nn_model.add(Dense(128, activation="relu"))
     nn_model.add(Dropout(0.5))
     nn_model.add(AveragePooling1D())
 
@@ -72,4 +76,5 @@ def bidirectional_lstm_rnn_CNN(embeddings_path, train_xs, train_ys, test_xs, tes
                                batch_size=32, epochs=10, verbose=verbose)
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
+
     return y_labels, history

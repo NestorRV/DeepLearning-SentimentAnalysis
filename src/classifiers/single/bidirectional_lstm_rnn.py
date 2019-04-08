@@ -63,5 +63,4 @@ def bidirectional_lstm_rnn(embeddings_path, train_xs, train_ys, test_xs, test_ys
                                batch_size=32, epochs=10, verbose=verbose)
 
     y_labels = nn_model.predict_classes(test_features_pad, batch_size=32, verbose=verbose)
-
     return y_labels, history
