@@ -63,10 +63,6 @@ def pretrain_embeddings_LSTM_CONV(embeddings_path, train_xs, train_ys, test_xs, 
     np_labels_train = np.array(train_ys)
     test_features_pad = sequence.pad_sequences(corpus_test_index, maxlen=max_len_input, padding="post",
                                                truncating="post", dtype=type(corpus_test_index[0][0]))
-    print(train_features_pad[1])
-    pd_ = pd.DataFrame(data=train_features_pad[1:, 1:],  # values
-                    index = train_features_pad[1:, 0],  # 1st column as index
-                    columns = train_features_pad[0, 1:])  # 1st row as the column names
 
     history = None
     if test_ys is None:

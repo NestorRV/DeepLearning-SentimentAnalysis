@@ -480,7 +480,7 @@ def transform_data(dataset):
                        negative_prop, positive_count, positive_prop, insults_count], index=transformed_df.columns)
             , ignore_index=True)
 
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    # with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #    print(transformed_df)
 
     return transformed_df

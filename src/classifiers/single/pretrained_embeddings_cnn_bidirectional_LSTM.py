@@ -1,4 +1,4 @@
-from keras.layers import Bidirectional, GlobalMaxPool1D, Dropout, Conv1D, AveragePooling1D, MaxPooling1D, Flatten, GRU
+from keras.layers import Bidirectional, Dropout, Conv1D, AveragePooling1D, MaxPooling1D, Flatten
 from keras.layers.core import Dense
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
@@ -10,7 +10,7 @@ from src.util.utilities import *
 
 
 def pretrained_embeddings_cnn_bidirectional_LSTM(embeddings_path, train_xs, train_ys, test_xs, test_ys=None,
-                                                     verbose=1):
+                                                 verbose=1):
     own_set_seed()
 
     # Offset = 2; Padding and OOV.

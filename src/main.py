@@ -1,10 +1,3 @@
-from keras.optimizers import Adam
-
-import src.util.global_vars
-from classifiers.cv.pretrained_embeddings_cnn_bidirectional_LSTM_cv import \
-    pretrained_embeddings_cnn_bidirectional_LSTM_cv
-from classifiers.single.pretrained_embeddings_cnn_bidirectional_LSTM import \
-    pretrained_embeddings_cnn_bidirectional_LSTM
 from src.classifiers.cv.adadelta_rnn_cv import adadelta_rnn_cv
 from src.classifiers.cv.bidirectional_lstm_rnn_cv import bidirectional_lstm_rnn_cv
 from src.classifiers.cv.big_LSTM_CONV_rnn_cv import big_LSTM_CONV_rnn_cv
@@ -13,6 +6,8 @@ from src.classifiers.cv.calculated_embeddings_rnn_cv import calculated_embedding
 from src.classifiers.cv.dropout_LSTM_CONV_rnn_cv import dropout_LSMT_CONV_rnn_cv
 from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
 from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
+from src.classifiers.cv.pretrained_embeddings_cnn_bidirectional_LSTM_cv import \
+    pretrained_embeddings_cnn_bidirectional_LSTM_cv
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
 from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
 from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
@@ -24,6 +19,8 @@ from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddin
 from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
 from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
 from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
+from src.classifiers.single.pretrained_embeddings_cnn_bidirectional_LSTM import \
+    pretrained_embeddings_cnn_bidirectional_LSTM
 from src.classifiers.single.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_embeddings_rnn
 from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.single.tfidf_rnn import tfidf_rnn
@@ -204,7 +201,6 @@ def main():
         test_ys_pretrain_embeddings_LSTM_CONV, _ = pretrain_embeddings_LSTM_CONV(embeddings_file_path, train_xs,
                                                                                  train_ys,
                                                                                  test_xs, verbose=0)
-        print(test_ys_pretrain_embeddings_LSTM_CONV)
         kaggle_file(test_ids, test_ys_pretrain_embeddings_LSTM_CONV, 'pretrain_embeddings_LSTM_CONV')
 
     if should_compute['preprocess_tfidf_rnn']:
@@ -301,14 +297,12 @@ def main():
         kaggle_file(test_ids, test_ys_dropout_LSTM_CONV_rnn, 'dropout_LSTM_CONV_rnn')
 
     if should_compute['bidirectional_lstm_rnn']:
-        bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('bidirectional_lstm_rnn',
-                                                                   '../data/embeddings/fasttext_spanish_twitter_100d.vec',
+        bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('bidirectional_lstm_rnn', embeddings_file_path,
                                                                    train_xs, train_ys, validation_xs, validation_ys)
         final_results_list.append(bidirectional_lstm_rnn_results)
 
-        test_ys_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(
-            '../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs,
-            verbose=0)
+        test_ys_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn(embeddings_file_path, train_xs, train_ys, test_xs,
+                                                                   verbose=0)
         kaggle_file(test_ids, test_ys_bidirectional_lstm_rnn, 'bidirectional_lstm_rnn')
 
     if should_compute['pretrain_embeddings_LSTM_CONV_OVERSAMPLING']:
@@ -371,14 +365,12 @@ def main():
 
     if should_compute['pretrained_embeddings_cnn_bidirectional_LSTM']:
         pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results = pretrained_embeddings_cnn_bidirectional_LSTM_cv(
-            'pretrained_embeddings_bidirectional_LSTM_CNN_GRU',
-            '../data/embeddings/fasttext_spanish_twitter_100d.vec',
-            train_xs,
-            train_ys, validation_xs, validation_ys)
+            'pretrained_embeddings_bidirectional_LSTM_CNN_GRU', embeddings_file_path, train_xs, train_ys, validation_xs,
+            validation_ys)
         final_results_list.append(pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results)
 
         test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU, _ = pretrained_embeddings_cnn_bidirectional_LSTM(
-            '../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
+            embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
 
         kaggle_file(test_ids, test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU,
                     'pretrained_embeddings_bidirectional_LSTM_CNN_GRU')
