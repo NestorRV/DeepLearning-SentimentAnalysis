@@ -364,16 +364,16 @@ def main():
         kaggle_file(test_ids, test_ys_wiki_es_bidirectional_lstm_rnn, 'wiki_es_bidirectional_lstm_rnn')
 
     if should_compute['pretrained_embeddings_cnn_bidirectional_LSTM']:
-        pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results = pretrained_embeddings_cnn_bidirectional_LSTM_cv(
-            'pretrained_embeddings_bidirectional_LSTM_CNN_GRU', embeddings_file_path, train_xs, train_ys, validation_xs,
+        pretrained_embeddings_cnn_bidirectional_LSTM_results = pretrained_embeddings_cnn_bidirectional_LSTM_cv(
+            'pretrained_embeddings_cnn_bidirectional_LSTM', embeddings_file_path, train_xs, train_ys, validation_xs,
             validation_ys)
-        final_results_list.append(pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results)
+        final_results_list.append(pretrained_embeddings_cnn_bidirectional_LSTM_results)
 
-        test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU, _ = pretrained_embeddings_cnn_bidirectional_LSTM(
+        test_ys_pretrained_embeddings_cnn_bidirectional_LSTM, _ = pretrained_embeddings_cnn_bidirectional_LSTM(
             embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
 
-        kaggle_file(test_ids, test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU,
-                    'pretrained_embeddings_bidirectional_LSTM_CNN_GRU')
+        kaggle_file(test_ids, test_ys_pretrained_embeddings_cnn_bidirectional_LSTM,
+                    'pretrained_embeddings_cnn_bidirectional_LSTM')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)
