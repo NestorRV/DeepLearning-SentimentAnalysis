@@ -1,4 +1,3 @@
-import src.util.global_vars
 from src.classifiers.cv.adadelta_rnn_cv import adadelta_rnn_cv
 from src.classifiers.cv.bidirectional_lstm_rnn_cv import bidirectional_lstm_rnn_cv
 from src.classifiers.cv.big_LSTM_CONV_rnn_cv import big_LSTM_CONV_rnn_cv
@@ -7,6 +6,8 @@ from src.classifiers.cv.calculated_embeddings_rnn_cv import calculated_embedding
 from src.classifiers.cv.dropout_LSTM_CONV_rnn_cv import dropout_LSMT_CONV_rnn_cv
 from src.classifiers.cv.pretrain_embeddings_LSTM_CONV_cv import pretrain_embeddings_LSTM_CONV_cv
 from src.classifiers.cv.pretrain_embeddings_rnn_cv import pretrain_embeddings_rnn_cv
+from src.classifiers.cv.pretrained_embeddings_cnn_bidirectional_LSTM_cv import \
+    pretrained_embeddings_cnn_bidirectional_LSTM_cv
 from src.classifiers.cv.sigmoid_pretrain_embeddings_rnn_cv import sigmoid_pretrain_embeddings_rnn_cv
 from src.classifiers.cv.stacked_lstm_rnn_cv import stacked_lstm_rnn_cv
 from src.classifiers.cv.tfidf_rnn_cv import tfidf_rnn_cv
@@ -18,6 +19,8 @@ from src.classifiers.single.calculated_embeddings_rnn import calculated_embeddin
 from src.classifiers.single.dropout_LSTM_CONV_rnn import dropout_LSMT_CONV_rnn
 from src.classifiers.single.pretrain_embeddings_LSTM_CONV import pretrain_embeddings_LSTM_CONV
 from src.classifiers.single.pretrain_embeddings_rnn import pretrain_embeddings_rnn
+from src.classifiers.single.pretrained_embeddings_cnn_bidirectional_LSTM import \
+    pretrained_embeddings_cnn_bidirectional_LSTM
 from src.classifiers.single.sigmoid_pretrain_embeddings_rnn import sigmoid_pretrain_embeddings_rnn
 from src.classifiers.single.stacked_lstm_rnn import stacked_lstm_rnn
 from src.classifiers.single.tfidf_rnn import tfidf_rnn
@@ -95,7 +98,8 @@ def main():
         'fasttext_sbwc_bidirectional_lstm_rnn': False,
         'glove_sbwc_i25_bidirectional_lstm_rnn': False,
         'SBW_vectors_300_min5_bidirectional_lstm_rnn': False,
-        'wiki_es_bidirectional_lstm_rnn': False
+        'wiki_es_bidirectional_lstm_rnn': False,
+        'pretrained_embeddings_cnn_bidirectional_LSTM': False
     }
 
     final_results_list = []
@@ -358,6 +362,18 @@ def main():
         test_ys_wiki_es_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn('../data/embeddings/wiki_es.vec', train_xs,
                                                                            train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_wiki_es_bidirectional_lstm_rnn, 'wiki_es_bidirectional_lstm_rnn')
+
+    if should_compute['pretrained_embeddings_cnn_bidirectional_LSTM']:
+        pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results = pretrained_embeddings_cnn_bidirectional_LSTM_cv(
+            'pretrained_embeddings_bidirectional_LSTM_CNN_GRU', embeddings_file_path, train_xs, train_ys, validation_xs,
+            validation_ys)
+        final_results_list.append(pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results)
+
+        test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU, _ = pretrained_embeddings_cnn_bidirectional_LSTM(
+            embeddings_file_path, train_xs, train_ys, test_xs, verbose=0)
+
+        kaggle_file(test_ids, test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU,
+                    'pretrained_embeddings_bidirectional_LSTM_CNN_GRU')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)
