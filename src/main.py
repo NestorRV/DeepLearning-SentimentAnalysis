@@ -1,6 +1,10 @@
 from keras.optimizers import Adam
 
 import src.util.global_vars
+from classifiers.cv.pretrained_embeddings_cnn_bidirectional_LSTM_cv import \
+    pretrained_embeddings_cnn_bidirectional_LSTM_cv
+from classifiers.single.pretrained_embeddings_cnn_bidirectional_LSTM import \
+    pretrained_embeddings_cnn_bidirectional_LSTM
 from src.classifiers.cv.adadelta_rnn_cv import adadelta_rnn_cv
 from src.classifiers.cv.bidirectional_lstm_rnn_cv import bidirectional_lstm_rnn_cv
 from src.classifiers.cv.big_LSTM_CONV_rnn_cv import big_LSTM_CONV_rnn_cv
@@ -98,7 +102,7 @@ def main():
         'glove_sbwc_i25_bidirectional_lstm_rnn': False,
         'SBW_vectors_300_min5_bidirectional_lstm_rnn': False,
         'wiki_es_bidirectional_lstm_rnn': False,
-        'pretrained_embeddings_bidirectional_CNN': True
+        'pretrained_embeddings_cnn_bidirectional_LSTM': False
     }
 
     final_results_list = []
@@ -365,19 +369,19 @@ def main():
                                                                            train_ys, test_xs, verbose=0)
         kaggle_file(test_ids, test_ys_wiki_es_bidirectional_lstm_rnn, 'wiki_es_bidirectional_lstm_rnn')
 
-    if should_compute['pretrained_embeddings_bidirectional_CNN']:
-        wiki_es_bidirectional_lstm_rnn_results = bidirectional_lstm_rnn_cv('pretrained_embeddings_bidirectional_CNN',
-                                                                           '../data/embeddings'
-                                                                           '/fasttext_spanish_twitter_100d.vec',
-                                                                           train_xs,
-                                                                           train_ys, validation_xs, validation_ys)
-        final_results_list.append(wiki_es_bidirectional_lstm_rnn_results)
+    if should_compute['pretrained_embeddings_cnn_bidirectional_LSTM']:
+        pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results = pretrained_embeddings_cnn_bidirectional_LSTM_cv(
+            'pretrained_embeddings_bidirectional_LSTM_CNN_GRU',
+            '../data/embeddings/fasttext_spanish_twitter_100d.vec',
+            train_xs,
+            train_ys, validation_xs, validation_ys)
+        final_results_list.append(pretrained_embeddings_bidirectional_LSTM_CNN_GRU_results)
 
-        test_ys_wiki_es_bidirectional_lstm_rnn, _ = bidirectional_lstm_rnn('../data/embeddings'
-                                                                           '/fasttext_spanish_twitter_100d.vec',
-                                                                           train_xs,
-                                                                           train_ys, test_xs, verbose=0)
-        kaggle_file(test_ids, test_ys_wiki_es_bidirectional_lstm_rnn, 'pretrained_embeddings_bidirectional_CNN')
+        test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU, _ = pretrained_embeddings_cnn_bidirectional_LSTM(
+            '../data/embeddings/fasttext_spanish_twitter_100d.vec', train_xs, train_ys, test_xs, verbose=0)
+
+        kaggle_file(test_ids, test_ys_pretrained_embeddings_bidirectional_LSTM_CNN_GRU,
+                    'pretrained_embeddings_bidirectional_LSTM_CNN_GRU')
 
     final_results = pd.concat(final_results_list)
     final_results.sort_values('micro_f1', ascending=False)

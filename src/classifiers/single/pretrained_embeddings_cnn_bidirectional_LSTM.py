@@ -9,7 +9,8 @@ from keras.preprocessing import sequence
 from src.util.utilities import *
 
 
-def pretrained_embeddings_bidirectional_CNN(embeddings_path, train_xs, train_ys, test_xs, test_ys=None, verbose=1):
+def pretrained_embeddings_cnn_bidirectional_LSTM(embeddings_path, train_xs, train_ys, test_xs, test_ys=None,
+                                                     verbose=1):
     own_set_seed()
 
     # Offset = 2; Padding and OOV.
@@ -34,23 +35,28 @@ def pretrained_embeddings_bidirectional_CNN(embeddings_path, train_xs, train_ys,
             doc_test_index.append(word_emb_indexes.get(token_test, 1))
         own_corpus_test_index_append(doc_test_index)
 
+    # Initializing the model
     nn_model = Sequential()
+
+    # Embedding layer
     nn_model.add(Embedding(len(word_embeddings), len(word_embeddings[0]), weights=[np_array(word_embeddings)],
                            input_length=max_len_input, trainable=False))
 
-    nn_model.add(Bidirectional(LSTM(64, return_sequences=True, dropout=0.25, recurrent_dropout=0.1)))
-    nn_model.add(MaxPooling1D())
+    # Setting a CNN layer in order to extract features in each epoch. 64 neurons. this number was selected after many
+    # experiments.
+    nn_model.add(Conv1D(64, 5, activation='relu', padding='same'))
+    nn_model.add(Dropout(0.25))  # Dropout in order to avoid ' over fitting '.
+    nn_model.add(AveragePooling1D())  # Pooling layer, used to reduce variance, reduce computation complexity and
+    # extract low level features.
 
-    nn_model.add(Conv1D(128, 5, activation='relu', padding='same'))
-    nn_model.add(Dropout(0.5))
-    nn_model.add(AveragePooling1D())
+    # Bidirectional LSTM, used to introduce an adaptive gating mechanism, which decides the degree to keep the previous
+    # state and memorize the extracted features of the current data input
+    nn_model.add(Bidirectional(LSTM(300, return_sequences=True, dropout=0.3, recurrent_dropout=0.1)))
+    nn_model.add(MaxPooling1D())  # Pooling layer
 
-    nn_model.add(GRU(128, 5, activation='sigmoid', padding='same'))
-    nn_model.add(Dropout(0.5))
-    nn_model.add(AveragePooling1D())
-
-    nn_model.add(Dense(128, activation="relu"))
-    nn_model.add(Dropout(0.5))
+    # Dense layer, to densely connect all the neurons of the previous layer.
+    nn_model.add(Dense(100, activation="sigmoid"))
+    nn_model.add(Dropout(0.25))
     nn_model.add(AveragePooling1D())
 
     nn_model.add(Flatten())
